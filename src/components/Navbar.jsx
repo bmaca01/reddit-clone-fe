@@ -13,6 +13,7 @@ import {
   TextField,
   Paper,
   InputBase,
+  Container
 } from '@mui/material'
 import { AccountCircle, Dashboard, Person, ExitToApp, Search } from '@mui/icons-material'
 import { useAuth } from '../contexts/AuthContext'
@@ -82,18 +83,6 @@ function Navbar() {
         <Box className="flex items-center space-x-4">
           {user ? (
             <>
-              {/**
-              <Button
-                color="inherit"
-                component={Link}
-                to="/dashboard"
-                startIcon={<Dashboard />}
-                className="text-gray-700"
-              >
-                Dashboard
-              </Button>
-               * 
-               */}
               <IconButton
                 size="large"
                 onClick={handleMenu}
@@ -149,6 +138,7 @@ function Navbar() {
             </>
           )}
         </Box>
+
       </Toolbar>
     </AppBar>
   );
