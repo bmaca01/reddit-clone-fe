@@ -12,14 +12,16 @@ import {
   ThumbUp,
   ThumbDown,
 } from '@mui/icons-material'
+import { useAuth } from '../../contexts/AuthContext'
 
 const VotingSection = ({
-  user,
+  //user,
   votes, userVote, 
   isVoting = false, onVote, 
   error = null, variant = 'post',
   disabled = false
 }) => {
+  const { user } = useAuth()
   const navigate = useNavigate()
   const handleVote = useCallback(async (voteType) => {
     if (!user) navigate('/login');

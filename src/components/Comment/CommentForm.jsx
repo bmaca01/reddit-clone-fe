@@ -13,6 +13,7 @@ import {
   Close
 } from '@mui/icons-material';
 
+import { useAuth } from '../../contexts/AuthContext'
 /**
  * CommentForm - Component for adding new comments to posts
  * 
@@ -28,7 +29,7 @@ import {
  * @param {Function} props.onAddComment - Callback to submit the comment (postId, content) => void
  */
 const CommentForm = ({ 
-  postId,
+  post,
   isAddingComment,
   newComment,
   isCommenting,
@@ -38,6 +39,8 @@ const CommentForm = ({
   onCancelComment,
   onAddComment
 }) => {
+  const postId = post.post_id;
+  const { user } = useAuth();
   // Handle comment text changes
   const handleTextChange = useCallback((e) => {
     onUpdateComment(postId, e.target.value);
@@ -46,7 +49,7 @@ const CommentForm = ({
   // Handle comment submission
   const handleSubmit = useCallback(async () => {
     if (!newComment.trim() || isCommenting) return;
-    await onAddComment(postId, newComment.trim());
+    await onAddComment(user.user_id, post.author.user_id, postId, newComment.trim());
   }, [postId, newComment, isCommenting, onAddComment]);
 
   // Handle form cancellation

@@ -23,12 +23,12 @@ const CommentItem = ({
 }) => {
   // Handle comment voting with optimistic UI updates
   const handleCommentVote = useCallback(async (voteType) => {
-    if (comment.isPending || comment.isVoting) return;
+    if (comment.ui.isPending || comment.ui.isVoting) return;
     
-    const previousVote = comment.userVote;
+    const previousVote = comment.user_vote;
     let newVote = previousVote === voteType ? null : voteType;
-    let newUpvotes = comment.upvotes;
-    let newDownvotes = comment.downvotes;
+    let newUpvotes = comment.up_votes;
+    let newDownvotes = comment.down_votes;
 
     // Calculate new vote counts optimistically
     if (previousVote === 'up') newUpvotes--;
@@ -36,10 +36,11 @@ const CommentItem = ({
     if (newVote === 'up') newUpvotes++;
     if (newVote === 'down') newDownvotes++;
 
-    await onVote(postId, comment.id, voteType, {
-      upvotes: newUpvotes,
-      downvotes: newDownvotes
-    }, newVote);
+    // TODO fix Home.handleCommentVote callback signature
+    await onVote(
+      postId, comment.temp_id, comment.comment_id, 
+      voteType, newUpvotes, newDownvotes, newVote
+    );
   }, [comment, onVote, postId]);
 
   return (
@@ -58,7 +59,7 @@ const CommentItem = ({
         {/* Author Name and Pending Indicator */}
         <div className="flex items-center gap-2">
           <Typography variant="subtitle2" className="font-bold text-gray-800">
-            {comment.author}
+            {comment.author.username}
           </Typography>
           {comment.ui.isPending && (
             <div className="flex items-center gap-1">
@@ -76,6 +77,7 @@ const CommentItem = ({
         </Typography>
         
         {/* Comment Vote Error Display */}
+        {/** TODO: Implement voteError attribute */}
         {comment.voteError && (
           <Alert severity="error" className="mt-2">
             Failed to vote: {comment.voteError}

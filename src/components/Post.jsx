@@ -37,13 +37,13 @@ import {
 } from '@mui/icons-material'
 
 import VotingSection from './Post/VotingSection'
+//import CommentItem from './Comment/CommentItem'
+import CommentsSection from './Comment/CommentsSection'
 
 import { useAuth } from '../contexts/AuthContext'
 import useRelativeTime from '../hooks/useRelativeTime'
 import { getInitials } from '../utils/helpers'
 import api from '../utils/api'
-
-
 
 function Post(props) {
   const {
@@ -157,7 +157,6 @@ function Post(props) {
 
         {/* Voting Section */}
         <VotingSection
-          user={user}
           votes={post.votes}
           userVote={post.userVote}
           isVoting={post.ui.isVoting}
@@ -168,297 +167,17 @@ function Post(props) {
 
         <Divider className="py-2"/>
 
-        {/* Comments Toggle */}
-        <Box className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-          <div className="flex items-center gap-3">
-            <CommentIcon className="text-blue-600" fontSize="small" />
-            <Typography variant="body2" className="font-semibold text-blue-800">
-              {commentsArray.length} Comments
-            </Typography>
-          </div>
-          
-          <IconButton
-            onClick={() => onToggleComments(post.post_id)}
-            className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 transition-colors duration-200"
-            size="small"
-          >
-            {post.ui.commentsExpanded ? <ExpandLess /> : <ExpandMore />}
-          </IconButton>
-        </Box>
-
         {/* Comments Section */}
-        <Collapse in={post.ui.commentsExpanded} timeout="auto" unmountOnExit>
-          <div className="mt-6 space-y-4">
-            {/* Comment Error Display */}
-            {post.ui.errors.comment && (
-              <Alert severity="error">
-                Failed to add comment: {post.ui.errors.comment}
-              </Alert>
-            )}
-
-            {/* Add Comment Section */}
-            <div className="pt-6 border-t border-gray-200">
-              {!post.ui.isAddingComment ? (
-                <Chip
-                  icon={<Add />}
-                  label="Add a comment"
-                  onClick={() => onStartComment(post.post_id)}
-                  className="cursor-pointer hover:bg-blue-100 transition-colors duration-200 border-blue-300 text-blue-700 font-medium"
-                  variant="outlined"
-                  color="primary"
-                  clickable
-                />
-              ) : (
-                <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                  <div className="flex gap-4">
-                    <Avatar className="bg-gradient-to-r from-purple-500 to-pink-600 w-10 h-10 text-white font-bold shadow-sm">
-                      CU
-                    </Avatar>
-                    <TextField
-                      fullWidth
-                      multiline
-                      rows={3}
-                      placeholder="Write a comment..."
-                      value={post.ui.newComment}
-                      onChange={(e) => onUpdateComment(post.post_id, e.target.value)}
-                      variant="outlined"
-                      size="small"
-                      autoFocus
-                      disabled={post.ui.isCommenting}
-                      className="flex-grow"
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2 ml-14">
-                    <Button
-                      onClick={() => onCancelComment(post.post_id)}
-                      startIcon={<Close />}
-                      disabled={post.ui.isCommenting}
-                      className="text-gray-600 hover:text-gray-800 hover:bg-gray-200 transition-colors duration-200"
-                      color="inherit"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleAddComment}
-                      variant="contained"
-                      disabled={!post.ui.newComment.trim() || post.ui.isCommenting}
-                      startIcon={post.ui.isCommenting ? <CircularProgress size={16} /> : <Send />}
-                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold"
-                    >
-                      {post.ui.isCommenting ? 'Posting...' : 'Post'}
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Existing Comments */}
-            <div className="space-y-6">
-              {commentsArray.map((comment, index) => (
-                <div key={comment.comment_id} className="space-y-4">
-                  {/*console.log(comment)*/}
-                  <div className={`flex gap-4 p-4 rounded-xl border transition-shadow duration-200 ${
-                    comment.ui.isPending 
-                      ? 'bg-gray-50 border-gray-300 opacity-70' 
-                      : 'bg-white border-gray-200 hover:shadow-md'
-                  }`}>
-                    <Avatar className="bg-gradient-to-r from-indigo-500 to-purple-600 w-10 h-10 text-white font-bold shadow-sm">
-                      {getInitials(comment.author)}
-                    </Avatar>
-                    
-                    <div className="flex-grow space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Typography variant="subtitle2" className="font-bold text-gray-800">
-                          {comment.author.username}
-                        </Typography>
-                        {comment.ui.isPending && (
-                          <CircularProgress size={12} className="text-gray-400" />
-                        )}
-                      </div>
-                      <Typography variant="body2" className="text-gray-700 leading-relaxed">
-                        {comment.content}
-                      </Typography>
-                      
-                      {/* Comment Voting */}
-                      <div className="flex items-center gap-3 pt-2">
-                        <div className="flex items-center gap-1">
-                          <IconButton
-                            onClick={() => handleCommentVote('up', comment)}
-                            disabled={comment.ui.isVoting}
-                            className={`transition-all duration-200 hover:scale-110 ${
-                              comment.user_vote === 'up' 
-                                ? 'text-green-600 bg-green-100 hover:bg-green-200' 
-                                : 'text-gray-500 hover:text-green-600 hover:bg-green-50'
-                            }`}
-                            size="small"
-                          >
-                            <ThumbUp fontSize="small" />
-                          </IconButton>
-                          <Typography variant="caption" className="font-medium text-gray-600 min-w-[1.5rem] text-center">
-                            {comment.up_votes}
-                          </Typography>
-                        </div>
-                        
-                        <div className="flex items-center gap-1">
-                          <IconButton
-                            onClick={() => handleCommentVote('down', comment)}
-                            disabled={comment.ui.isVoting}
-                            className={`transition-all duration-200 hover:scale-110 ${
-                              comment.user_vote === 'down' 
-                                ? 'text-red-600 bg-red-100 hover:bg-red-200' 
-                                : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
-                            }`}
-                            size="small"
-                          >
-                            <ThumbDown fontSize="small" />
-                          </IconButton>
-                          <Typography variant="caption" className="font-medium text-gray-600 min-w-[1.5rem] text-center">
-                            {comment.down_votes}
-                          </Typography>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {index < commentsArray.length - 1 && (
-                    <Divider className="border-gray-200" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </Collapse>
-
-        {/* Comments Toggle */}
-        {/**
-        <Box className="flex items-center justify-between pt-4">
-          <Box className="flex items-center gap-2">
-            <CommentIcon className="text-gray-600" fontSize="small" />
-            <Typography variant="body2" className="text-gray-700 font-medium">
-              {comments.length} Comments
-            </Typography>
-          </Box>
-          
-          <IconButton
-            onClick={() => setCommentsExpanded(!commentsExpanded)}
-            className="text-gray-600 hover:bg-gray-50"
-            size="small"
-          >
-            {commentsExpanded ? <ExpandLess /> : <ExpandMore />}
-          </IconButton>
-        </Box>
-         */}
-
-        {/* Comments Section */}
-        {/**
-        <Collapse in={commentsExpanded} timeout="auto" unmountOnExit>
-          <Box className="mt-4">
-            {/* Add Comment Section *\/}
-            <div className="pt-6 border-t border-gray-200">
-              {!isAddingComment ? (
-                <Chip
-                  icon={<Add />}
-                  label="Add a comment"
-                  onClick={() => setIsAddingComment(true)}
-                  className="cursor-pointer hover:bg-blue-100 transition-colors duration-200 border-blue-300 text-blue-700 font-medium"
-                  variant="outlined"
-                  color="primary"
-                  clickable
-                />
-              ) : (
-                <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                  <div className="flex gap-4">
-                    <Avatar className="bg-gradient-to-r from-purple-500 to-pink-600 w-10 h-10 text-white font-bold shadow-sm">
-                      CU
-                    </Avatar>
-                    <TextField
-                      fullWidth
-                      multiline
-                      rows={3}
-                      placeholder="Write a comment..."
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      variant="outlined"
-                      size="small"
-                      autoFocus
-                      className="flex-grow"
-                      InputProps={{
-                        className: "bg-white border-gray-300 focus:border-blue-500 rounded-lg"
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2 ml-14">
-                    <Button
-                      onClick={handleCancelComment}
-                      startIcon={<Close />}
-                      className="text-gray-600 hover:text-gray-800 hover:bg-gray-200 transition-colors duration-200"
-                      color="inherit"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleAddComment}
-                      variant="contained"
-                      disabled={!newComment.trim()}
-                      startIcon={<Send />}
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
-                    >
-                      Post
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {comments.map((comment, index) => (
-              <Box key={comment.id} className="mb-4">
-                <Box className="flex gap-3">
-                  <Avatar className="bg-purple-500" sx={{ width: 32, height: 32 }}>
-                    {getInitials(comment.author)}
-                  </Avatar>
-                  
-                  <Box className="flex-1">
-                    <Typography variant="subtitle2" className="font-semibold text-gray-800 mb-1">
-                      {comment.author}
-                    </Typography>
-                    <Typography variant="body2" className="text-gray-700 mb-2">
-                      {comment.content}
-                    </Typography>
-                    
-                    {/* Comment Voting *\/}
-                    <Box className="flex items-center gap-1">
-                      <IconButton
-                        onClick={() => handleCommentVote(comment.id, 'up')}
-                        className={`${comment.userVote === 'up' ? 'text-green-600' : 'text-gray-500'} hover:bg-green-50`}
-                        size="small"
-                      >
-                        <ThumbUp fontSize="small" />
-                      </IconButton>
-                      <Typography variant="caption" className="text-gray-600 font-medium">
-                        {comment.upvotes}
-                      </Typography>
-                      
-                      <IconButton
-                        onClick={() => handleCommentVote(comment.id, 'down')}
-                        className={`${comment.userVote === 'down' ? 'text-red-600' : 'text-gray-500'} hover:bg-red-50`}
-                        size="small"
-                      >
-                        <ThumbDown fontSize="small" />
-                      </IconButton>
-                      <Typography variant="caption" className="text-gray-600 font-medium">
-                        {comment.downvotes}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-                
-                {index < comments.length - 1 && <Divider className="mt-3" />}
-              </Box>
-            ))}
-          </Box>
-        </Collapse>
-         */}
-
+        <CommentsSection 
+          post={post}
+          commentsArray={commentsArray}
+          onCommentVote={onCommentVote}       // Called in CommentItem
+          onAddComment={onAddComment}         // Called in CommentForm
+          onToggleComments={onToggleComments} // Called in CommentsSection
+          onStartComment={onStartComment}     // Called in CommentForm
+          onUpdateComment={onUpdateComment}   // Called in CommentForm
+          onCancelComment={onCancelComment}   // Called in CommentForm
+        />
       </CardContent>
 
       <CardActions>

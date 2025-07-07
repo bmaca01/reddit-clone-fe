@@ -58,6 +58,7 @@ function Home() {
     }
   }, []);
 
+  // TODO: Make this more succinct....
   const handleCommentVote = useCallback(async (postId, tempId, commentId, voteType, upVotes, dnVotes, userVote) => {
     // Implement comment voting logic
     dispatch({ type: 'START_COMMENT_VOTE', postId, tempId})

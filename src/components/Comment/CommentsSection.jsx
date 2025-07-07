@@ -11,6 +11,7 @@ import CommentForm from './CommentForm';
 
 const CommentsSection = ({
   post,
+  commentsArray,
   onCommentVote,
   onAddComment,
   onToggleComments,
@@ -29,7 +30,7 @@ const CommentsSection = ({
         </div>
 
         <IconButton
-          onClick={() => onToggleComments(post.id)}
+          onClick={() => onToggleComments(post.post_id)}
           className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 transition-colors duration-200"
           size="small"
         >
@@ -46,23 +47,31 @@ const CommentsSection = ({
           )}
 
           <CommentForm
-            postId={post.post_id}
+            post={post}
             isAddingComment={post.ui.isAddingComment}
             newComment={post.ui.newComment}
             isCommenting={post.ui.isCommenting}
-            onStartComment={() => onStartComment(post.post_id)}
-            onUpdateComment={(text) => onUpdateComment(post.post_id, text)}
-            onCancelComment={() => onCancelComment(post.post_id)}
-            onAddComment={() => onAddComment(post.post_id, post.ui.newComment.trim())}
+            error={post.ui.errors.comment}  // TODO implement
+            onStartComment={onStartComment}
+            onUpdateComment={onUpdateComment}
+            onCancelComment={onCancelComment}
+            onAddComment={onAddComment}
+            //onStartComment={() => onStartComment(post.post_id)}
+            //onUpdateComment={(text) => onUpdateComment(post.post_id, text)}
+            //onCancelComment={() => onCancelComment(post.post_id)}
+            //onAddComment={() => onAddComment(post.post_id, post.ui.newComment.trim())}
           />
 
           <div className="space-y-6">
-            {post.comments.map((comment, index) => (
-              <CommentItem
-                comment={comment}
-                onVote={(commentId, type) => onCommentVote(post.id, commentId, type)}
-                postId={post.post_id}
-              />
+            {commentsArray.map((comment, index) => (
+              <div key={index}>
+                <CommentItem
+                  comment={comment}
+                  onVote={onCommentVote}
+                  //onVote={(commentId, type) => onCommentVote(post.post_id, comment.temp_id, commentId, type)}
+                  postId={post.post_id}
+                />
+              </div>
             ))}
           </div>
         </div>
