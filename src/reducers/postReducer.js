@@ -9,7 +9,19 @@ const postsReducer = (state, action) => {
           ...post,
           votes: { up: post.up_votes || 0, down: post.down_votes || 0 },
           userVote: post.user_vote || null,
-          comments: post.comments || [],
+          //comments: post.comments || [],
+          comments: post.comments.reduce((acc, comment) => ({
+            ...acc,
+            [comment.temp_id]: {
+              ...comment,
+              ui: {
+                isVoting: false,
+                isPending: false,
+                errors: {}
+              }
+            }
+
+          }), {}),
           ui: {
             commentsExpanded: false,
             isVoting: false,
@@ -37,6 +49,7 @@ const postsReducer = (state, action) => {
           ...state[action.postId],
           votes: action.votes,
           userVote: action.userVote,
+          user_vote: action.userVote,
           ui: { 
             ...state[action.postId].ui, 
             isVoting: false,
@@ -103,25 +116,29 @@ const postsReducer = (state, action) => {
       };
 
     case 'ADD_COMMENT_OPTIMISTIC':
-      //console.log("IN ADD OPTIMISTIC")
-      //console.log(`state: ${state}, action: ${action}`)
       return {
         ...state,
         [action.postId]: {
           ...state[action.postId],
-          comments: [
+          comments: {
             ...state[action.postId].comments,
-            {
-              id: action.tempId,
-              author: 'Current User',
+            [action.tempId]: {
+              comment_id: null,
+              temp_id: action.tempId,
+              author: action.commentAuthor,
               content: action.content,
               up_votes: 0,
               down_votes: 0,
               userVote: null,
-              isPending: true,
-              isVoting: false
+              created_at: (new Date(Date.now())).toISOString(),
+              updated_at: (new Date(Date.now())).toISOString(),
+              ui: {
+                isPending: true,
+                isVoting: false,
+                errors: {}
+              }
             }
-          ],
+          },
           ui: {
             ...state[action.postId].ui,
             isCommenting: true,
@@ -132,22 +149,21 @@ const postsReducer = (state, action) => {
       };
 
     case 'COMMENT_SUCCESS':
-      //console.log("IN COMMENT SUCCESS")
-      //console.log(state)
-      //console.log(action)
       return {
         ...state,
         [action.postId]: {
           ...state[action.postId],
-          comments: state[action.postId].comments.map(comment =>
-            comment.comment_id === action.tempId 
-              ? { 
-                  ...action.comment, 
-                  isPending: false, 
-                  isVoting: false 
-                }
-              : comment
-          ),
+          comments: {
+            ...state[action.postId].comments,
+            [action.tempId]: {
+              ...action.comment,
+              ui: {
+                isPending: false,
+                isVoting: false,
+                errors: {}
+              }
+            }
+          },
           ui: {
             ...state[action.postId].ui,
             isCommenting: false,
@@ -174,56 +190,78 @@ const postsReducer = (state, action) => {
         }
       };
 
-    case 'SART_COMMENT_VOTE':
+    case 'START_COMMENT_VOTE':
       return {
         ...state,
         [action.postId]: {
           ...state[action.postId],
-          comments: state[action.postId].comments.map(comment =>
-            comment.comment_id === action.commentId
-              ? { ...comment, isVoting: true }
-              : comment
-          )
+          comments: {
+            ...state[action.postId].comments,
+            [action.tempId]: {
+              ...state[action.postId].comments[action.tempId],
+              ui: {
+                isPending: false,
+                isVoting: true,
+                errors: {}
+              }
+            }
+          }
         }
       };
 
     case 'UPDATE_COMMENT_VOTES':
-      //console.log('IN COMMENT VOTE')
-      //console.log(state)
-      console.log(action)
       return {
         ...state,
         [action.postId]: {
           ...state[action.postId],
-          comments: state[action.postId].comments.map(comment =>
-            comment.comment_id === action.commentId
-              ? { 
-                  ...comment, 
-                  up_votes: action.upvotes, 
-                  down_votes: action.downvotes, 
-                  user_vote: action.userVote,
-                  isVoting: false,
-                  voteError: null
-                }
-              : comment
-          )
+          comments: {
+            ...state[action.postId].comments,
+            [action.tempId]: {
+              ...state[action.postId].comments[action.tempId],
+              up_votes: action.upvotes,
+              down_votes: action.downvotes,
+              user_vote: action.userVote,
+              ui: {
+                isPending: false,
+                isVoting: false,
+                errors: {}
+              }
+            }
+          }
         }
       };
 
     case 'COMMENT_VOTE_ERROR':
       return {
+        //...state,
+        //[action.postId]: {
+        //  ...state[action.postId],
+        //  comments: state[action.postId].comments.map(comment =>
+        //    comment.comment_id === action.commentId
+        //      ? {
+        //          ...comment,
+        //          isVoting: false,
+        //          voteError: action.error
+        //        }
+        //      : comment
+        //  )
+        //}
         ...state,
         [action.postId]: {
           ...state[action.postId],
-          comments: state[action.postId].comments.map(comment =>
-            comment.comment_id === action.commentId
-              ? {
-                  ...comment,
-                  isVoting: false,
+          comments: {
+            [action.commentId]: {
+              ...state[action.postId].comments[action.commentId],
+              ui: {
+                isPending: false,
+                isVoting: false,
+                errors: {
+                  ...state[action.postId].comments[action.commentId].ui.errors,
                   voteError: action.error
                 }
-              : comment
-          )
+              }
+            }
+          }
         }
       }
 

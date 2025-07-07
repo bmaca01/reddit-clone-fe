@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Link, redirect, useNavigate } from 'react-router-dom'
 
 import { 
@@ -37,98 +37,13 @@ import {
 } from '@mui/icons-material'
 
 import { useAuth } from '../contexts/AuthContext'
+import useRelativeTime from '../hooks/useRelativeTime'
+import { getInitials } from '../utils/helpers'
 import api from '../utils/api'
 
-const formatRelativeTime = (createdAt) => {
-  // Handle various input formats
-  const createdDate = new Date(createdAt);
-  const now = new Date();
-  
-  // Check if date is valid
-  if (isNaN(createdDate.getTime())) {
-    return 'Unknown time';
-  }
-  
-  // Calculate difference in milliseconds
-  const diffMs = now.getTime() - createdDate.getTime();
-  
-  // Handle future dates (shouldn't happen but good to check)
-  if (diffMs < 0) {
-    return 'Just now';
-  }
-  
-  // Convert to different time units
-  const diffSeconds = Math.floor(diffMs / 1000);
-  const diffMinutes = Math.floor(diffSeconds / 60);
-  const diffHours = Math.floor(diffMinutes / 60);
-  const diffDays = Math.floor(diffHours / 24);
-  const diffWeeks = Math.floor(diffDays / 7);
-  const diffMonths = Math.floor(diffDays / 30);
-  const diffYears = Math.floor(diffDays / 365);
-  
-  // Return appropriate format based on time elapsed
-  if (diffSeconds < 60) {
-    return 'Just now';
-  } else if (diffMinutes < 60) {
-    return `${diffMinutes} ${diffMinutes === 1 ? 'minute' : 'minutes'} ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
-  } else if (diffDays < 7) {
-    return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
-  } else if (diffWeeks < 4) {
-    return `${diffWeeks} ${diffWeeks === 1 ? 'week' : 'weeks'} ago`;
-  } else if (diffMonths < 12) {
-    return `${diffMonths} ${diffMonths === 1 ? 'month' : 'months'} ago`;
-  } else {
-    return `${diffYears} ${diffYears === 1 ? 'year' : 'years'} ago`;
-  }
-};
-
-const useRelativeTime = (createdAt, updateInterval = 60000) => {
-  const [relativeTime, setRelativeTime] = useState('');
-  
-  useEffect(() => {
-    // Initial calculation
-    const updateTime = () => {
-      setRelativeTime(formatRelativeTime(createdAt));
-    };
-    
-    updateTime();
-    
-    // Set up interval for updates
-    const interval = setInterval(updateTime, updateInterval);
-    
-    // Cleanup interval on unmount
-    return () => clearInterval(interval);
-  }, [createdAt, updateInterval]);
-  
-  return relativeTime;
-};
 
 
 function Post(props) {
-  /**
-  const { 
-    author,
-    post_id, 
-    user_id,
-    title, 
-    content, 
-    up_votes, 
-    down_votes, 
-    user_vote,
-    total_votes,
-    created_at, 
-    updated_at,
-    onVote,
-    onCommentVote,
-    onAddComment,
-    onToggleComments,
-    onStartComment,
-    onUpdateComment,
-    onCancelComment
-  } = props;
-   */
   const {
     post,
     onVote,
@@ -157,20 +72,10 @@ function Post(props) {
     user_vote,
     votes
   } = post;
-  const getInitials = (name) => {
-    return 'AA'
-    //return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
 
   const { user } = useAuth();
-  //const [postUserVote, setPostUserVote] = useState(null);
-  //const [commentsExpanded, setCommentsExpanded] = useState(false);
-  //const [newComment, setNewComment] = useState('');
-  //const [isAddingComment, setIsAddingComment] = useState(false);
-  //const [comments, setComments] = useState([]);
 
-
-  const navigate = useNavigate()
+  //const navigate = useNavigate()
   const relTime = useRelativeTime(created_at)
 
   const handleVote = useCallback(async (voteType) => {
@@ -181,7 +86,6 @@ function Post(props) {
     let newUpvotes = post.votes.up;
     let newDownvotes = post.votes.down;
 
-    // Calculate new vote counts
     if (previousVote === 'up') newUpvotes--;
     if (previousVote === 'down') newDownvotes--;
     if (newVote === 'up') newUpvotes++;
@@ -194,7 +98,9 @@ function Post(props) {
   }, [post, onVote]);
 
   const handleCommentVote = useCallback(async (voteType, comment) => {
-    if (comment.isVoting) return;
+    console.log(voteType);
+    console.log(comment);
+    if (comment.ui.isVoting) return;
 
     const previousVote = comment.user_vote;
     let newVote = previousVote === voteType ? null : voteType;
@@ -206,69 +112,19 @@ function Post(props) {
     if (newVote === 'up') newUpvotes++;
     if (newVote === 'down') newDownvotes++;
 
-    await onCommentVote(post.post_id, comment.comment_id, voteType, newUpvotes, newDownvotes);
+
+    await onCommentVote(post.post_id, comment.temp_id, comment.comment_id, voteType, newUpvotes, newDownvotes, newVote);
   }, [post, onCommentVote])
 
   const handleAddComment = useCallback(async () => {
     if (!post.ui.newComment.trim() || post.ui.isCommenting) return;
-    await onAddComment(user.user_id, post.user_id, post.post_id, post.ui.newComment.trim());
+    await onAddComment(user, post.user_id, post.post_id, post.ui.newComment.trim());
   }, [post, onAddComment]);
 
-  //useEffect(() => {
-  //  if (user) {
-  //    console.log("There's a user");
-  //    setPostUserVote(user_vote)
-  //  } else {
-  //    console.log("no user");
-  //  }
-  //  return;
-  //}, []);
-
-  //useEffect(() => {}, [postUserVote]);
-
-  /**
-  const handlePostVote = async (dir) => {
-    try {
-      const res = await api.post(
-        `/social_media/post/${post_id}`, 
-        { vote: dir }
-      );
-      u_votes = res.up_votes;
-      d_votes = res.down_votes;
-    } catch (err) {
-      console.log(err);
-    } 
-    if (postUserVote === dir) {
-      setPostUserVote(null);
-    } else {
-      setPostUserVote(dir);
-    }
-    return;
-  };
-
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      const comment = {
-        id: Date.now(), // Simple ID generation
-        author: 'Current User', // In real app, this would come from auth
-        content: newComment.trim(),
-        upvotes: 0,
-        downvotes: 0,
-        userVote: null
-      };
-      
-      setComments(prev => [...prev, comment]);
-      setNewComment('');
-      setIsAddingComment(false);
-    }
-  };
-
-  const handleCancelComment = () => {
-    setNewComment('');
-    setIsAddingComment(false);
-  };
-   * 
-   */
+  const commentsArray = useMemo(() =>
+    Object.values(comments).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
+    [comments]
+  );
 
   return (
     <Card className="p-4">
@@ -296,26 +152,6 @@ function Post(props) {
         </Typography>
 
         {/* Voting Section */}
-        {/**
-        <Box className="flex items-center gap-2 mt-6">
-          <IconButton
-            onClick={() => {user ? handlePostVote('up') : navigate('/login')}}
-            className={`${postUserVote === 'up' ? 'text-green-600 bg-green-100' : 'text-gray-600'} hover:bg-green-50`}
-            size="small"
-          >
-            <ThumbUp fontSize="small" />
-          </IconButton>
-          <Typography>{up_votes - down_votes}</Typography>
-          <IconButton
-            onClick={() => {user ? handlePostVote('down') : navigate('/login')}}
-            className={`${postUserVote === 'down' ? 'text-red-600 bg-red-100' : 'text-gray-600'} hover:bg-red-50`}
-            size="small"
-          >
-            <ThumbDown fontSize="small" />
-          </IconButton>
-        </Box>
-         * 
-         */}
         <Box className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
           <div className="flex items-center gap-2">
             <IconButton
@@ -370,7 +206,7 @@ function Post(props) {
           <div className="flex items-center gap-3">
             <CommentIcon className="text-blue-600" fontSize="small" />
             <Typography variant="body2" className="font-semibold text-blue-800">
-              {post.comments.length} Comments
+              {commentsArray.length} Comments
             </Typography>
           </div>
           
@@ -451,11 +287,11 @@ function Post(props) {
 
             {/* Existing Comments */}
             <div className="space-y-6">
-              {comments.map((comment, index) => (
+              {commentsArray.map((comment, index) => (
                 <div key={comment.comment_id} className="space-y-4">
-                  {/**console.log(comment)*/}
+                  {/*console.log(comment)*/}
                   <div className={`flex gap-4 p-4 rounded-xl border transition-shadow duration-200 ${
-                    comment.isPending 
+                    comment.ui.isPending 
                       ? 'bg-gray-50 border-gray-300 opacity-70' 
                       : 'bg-white border-gray-200 hover:shadow-md'
                   }`}>
@@ -468,7 +304,7 @@ function Post(props) {
                         <Typography variant="subtitle2" className="font-bold text-gray-800">
                           {comment.author.username}
                         </Typography>
-                        {comment.isPending && (
+                        {comment.ui.isPending && (
                           <CircularProgress size={12} className="text-gray-400" />
                         )}
                       </div>
@@ -480,14 +316,8 @@ function Post(props) {
                       <div className="flex items-center gap-3 pt-2">
                         <div className="flex items-center gap-1">
                           <IconButton
-                            onClick={() => onCommentVote(
-                              post.post_id, 
-                              comment.comment_id, 
-                              'up', 
-                              comment.up_votes, 
-                              comment.down_votes
-                            )}
-                            disabled={comment.isPending}
+                            onClick={() => handleCommentVote('up', comment)}
+                            disabled={comment.ui.isVoting}
                             className={`transition-all duration-200 hover:scale-110 ${
                               comment.user_vote === 'up' 
                                 ? 'text-green-600 bg-green-100 hover:bg-green-200' 
@@ -504,14 +334,8 @@ function Post(props) {
                         
                         <div className="flex items-center gap-1">
                           <IconButton
-                            onClick={() => onCommentVote(
-                              post.post_id, 
-                              comment.comment_id, 
-                              'down', 
-                              comment.up_votes, 
-                              comment.down_votes
-                            )}
-                            disabled={comment.isPending}
+                            onClick={() => handleCommentVote('down', comment)}
+                            disabled={comment.ui.isVoting}
                             className={`transition-all duration-200 hover:scale-110 ${
                               comment.user_vote === 'down' 
                                 ? 'text-red-600 bg-red-100 hover:bg-red-200' 
@@ -529,7 +353,7 @@ function Post(props) {
                     </div>
                   </div>
                   
-                  {index < post.comments.length - 1 && (
+                  {index < commentsArray.length - 1 && (
                     <Divider className="border-gray-200" />
                   )}
                 </div>

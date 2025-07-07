@@ -1,6 +1,7 @@
 import { useState, useEffect, useReducer, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Container, Typography, Button, Box, Paper } from '@mui/material'
+import { v4 as uuidv4 } from 'uuid'
 import { useAuth } from '../contexts/AuthContext'
 import Post from '../components/Post'
 import api from '../utils/api'
@@ -57,9 +58,9 @@ function Home() {
     }
   }, []);
 
-  const handleCommentVote = useCallback(async (postId, commentId, voteType, upVotes, dnVotes) => {
+  const handleCommentVote = useCallback(async (postId, tempId, commentId, voteType, upVotes, dnVotes, userVote) => {
     // Implement comment voting logic
-    dispatch({ type: 'START_COMMENT_VOTE', commentId})
+    dispatch({ type: 'START_COMMENT_VOTE', postId, tempId})
     try {
       //await mockApi.voteComment(postId, commentId, voteType);
       await api.post(`/social_media/comment/${commentId}`, { 'vote': voteType });
@@ -69,11 +70,12 @@ function Home() {
       dispatch({
         type: 'UPDATE_COMMENT_VOTES',
         postId,
+        tempId,
         commentId,
         // These would be calculated based on current state + vote type
         upvotes: upVotes,
         downvotes: dnVotes,
-        userVote: voteType
+        userVote: userVote
       });
     } catch (error) {
       // Handle comment vote error
@@ -81,12 +83,13 @@ function Home() {
     }
   }, []);
 
-  const handleAddComment = useCallback(async (commentAuthorId, postAuthorId, postId, content) => {
-    const tempId = `temp-${Date.now()}`;
+  const handleAddComment = useCallback(async (commentAuthor, postAuthorId, postId, content) => {
+    //const tempId = `temp-${Date.now()}`;
+    const tempId = uuidv4();
     
     dispatch({ 
       type: 'ADD_COMMENT_OPTIMISTIC', 
-      commentAuthorId,
+      commentAuthor,
       postId, 
       content,
       tempId
@@ -137,17 +140,6 @@ function Home() {
     Object.values(posts).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)),
     [posts]
   ); 
-
-  const passedProps = {
-    'onVote': handleVote,
-    'onCommentVote': handleCommentVote,
-    'onAddComment': handleAddComment,
-    'onToggleComments': handleToggleComments,
-    'onStartComment': handleStartComment,
-    'onUpdateComment': handleUpdateComment,
-    'onCancelComment': handleCancelComment,
-
-  }
 
   return (
     <Container className="mt-12">
