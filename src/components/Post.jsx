@@ -75,10 +75,11 @@ function Post(props) {
 
   const { user } = useAuth();
 
-  //const navigate = useNavigate()
+  const navigate = useNavigate()
   const relTime = useRelativeTime(created_at)
 
   const handleVote = useCallback(async (voteType) => {
+    if (!user) navigate('/login');
     if (post.ui.isVoting) return;
     
     const previousVote = post.userVote;
@@ -100,6 +101,7 @@ function Post(props) {
   const handleCommentVote = useCallback(async (voteType, comment) => {
     console.log(voteType);
     console.log(comment);
+    if (!user) navigate('/login');
     if (comment.ui.isVoting) return;
 
     const previousVote = comment.user_vote;

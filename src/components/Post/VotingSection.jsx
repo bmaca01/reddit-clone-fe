@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Box,
   IconButton,
@@ -12,14 +13,16 @@ import {
   ThumbDown,
 } from '@mui/icons-material'
 
-function VotingSection({
+const VotingSection = ({
+  user,
   votes, userVote, 
   isVoting = false, onVote, 
   error = null, variant = 'post',
   disabled = false
-}) 
-{
+}) => {
+  const navigate = useNavigate()
   const handleVote = useCallback(async (voteType) => {
+    if (!user) navigate('/login');
     if (isVoting || disabled) return;
     try {
       await onVote(voteType);

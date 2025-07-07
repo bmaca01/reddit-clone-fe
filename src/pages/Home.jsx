@@ -21,7 +21,7 @@ function Home() {
     try {
       const res = await api.get('/social_media');
       //const res = await axios.get('https://jsonplaceholder.typicode.com/posts/');
-      //console.log(res.data);
+      console.log(res.data);
       dispatch({ type: 'INITIALIZE_POSTS', posts: res.data.items })
       //setPosts(res.data.items);
     } catch (err) {

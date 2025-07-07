@@ -10,7 +10,7 @@ const postsReducer = (state, action) => {
           votes: { up: post.up_votes || 0, down: post.down_votes || 0 },
           userVote: post.user_vote || null,
           //comments: post.comments || [],
-          comments: post.comments.reduce((acc, comment) => ({
+          comments: post.comments.length > 0 ? (post.comments.reduce((acc, comment) => ({
             ...acc,
             [comment.temp_id]: {
               ...comment,
@@ -21,7 +21,7 @@ const postsReducer = (state, action) => {
               }
             }
 
-          }), {}),
+          }), {})) : {},
           ui: {
             commentsExpanded: false,
             isVoting: false,
