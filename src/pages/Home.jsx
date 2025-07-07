@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { Container, Typography, Button, Box, Paper } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
 import { useAuth } from '../contexts/AuthContext'
-import Post from '../components/Post'
+//import Post from '../components/Post'
+import PostComponent from '../components/Post/PostComponent'
 import api from '../utils/api'
 import postsReducer from '../reducers/postReducer'
 //import axios from 'axios'
@@ -150,7 +151,7 @@ function Home() {
         postsArray.map(post => (
           <div key={post.post_id} className="pt-4">
             {/**console.log(post)*/}
-            <Post 
+            <PostComponent
               post={post}
               onVote={handleVote}
               onCommentVote={handleCommentVote}
