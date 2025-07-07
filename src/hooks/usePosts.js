@@ -68,7 +68,6 @@ export const usePosts = () => {
     });
     
     try {
-      //const newComment = await mockApi.addComment(postId, content);
       const newComment = await api.post(`/social_media/${postAuthorId}/post/${postId}/comment`, {
         'content': content,
         'temp_id': tempId   // Server sends this back on success as a field in newComment

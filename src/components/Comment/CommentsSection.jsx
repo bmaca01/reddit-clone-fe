@@ -57,10 +57,6 @@ const CommentsSection = ({
             onUpdateComment={onUpdateComment}
             onCancelComment={onCancelComment}
             onAddComment={onAddComment}
-            //onStartComment={() => onStartComment(post.post_id)}
-            //onUpdateComment={(text) => onUpdateComment(post.post_id, text)}
-            //onCancelComment={() => onCancelComment(post.post_id)}
-            //onAddComment={() => onAddComment(post.post_id, post.ui.newComment.trim())}
           />
 
           <div className="space-y-6">
@@ -69,7 +65,6 @@ const CommentsSection = ({
                 <CommentItem
                   comment={comment}
                   onVote={onCommentVote}
-                  //onVote={(commentId, type) => onCommentVote(post.post_id, comment.temp_id, commentId, type)}
                   postId={post.post_id}
                 />
               </div>

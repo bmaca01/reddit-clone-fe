@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router';
 import {
   Avatar,
   TextField,
@@ -13,6 +14,7 @@ import {
   Close
 } from '@mui/icons-material';
 
+import ProtectedRoute from '../ProtectedRoute';
 import { useAuth } from '../../contexts/AuthContext'
 /**
  * CommentForm - Component for adding new comments to posts
@@ -41,6 +43,7 @@ const CommentForm = ({
 }) => {
   const postId = post.post_id;
   const { user } = useAuth();
+  const navigate = useNavigate
   // Handle comment text changes
   const handleTextChange = useCallback((e) => {
     onUpdateComment(postId, e.target.value);
@@ -49,7 +52,7 @@ const CommentForm = ({
   // Handle comment submission
   const handleSubmit = useCallback(async () => {
     if (!newComment.trim() || isCommenting) return;
-    await onAddComment(user.user_id, post.author.user_id, postId, newComment.trim());
+    await onAddComment(user, post.author.user_id, postId, newComment.trim());
   }, [postId, newComment, isCommenting, onAddComment]);
 
   // Handle form cancellation
@@ -85,7 +88,7 @@ const CommentForm = ({
         <Chip
           icon={<Add />}
           label="Add a comment"
-          onClick={handleStartComment}
+          onClick={() => handleStartComment()}
           className="cursor-pointer hover:bg-blue-100 transition-colors duration-200 border-blue-300 text-blue-700 font-medium"
           variant="outlined"
           color="primary"
