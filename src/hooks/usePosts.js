@@ -55,6 +55,7 @@ export const usePosts = () => {
       });
     }
   }, []);
+
   const handleAddComment = useCallback(async (commentAuthor, postAuthorId, postId, content) => {
     //const tempId = `temp-${Date.now()}`;
     const tempId = uuidv4();
@@ -106,6 +107,45 @@ export const usePosts = () => {
     dispatch({ type: 'CANCEL_COMMENT', postId });
   }, []);
 
+  const handleOpenAddPost = useCallback(() => {
+    dispatch({ type: 'OPEN_ADD_POST_MODAL' });
+  }, []);
+
+  const handleCloseAddPost = useCallback(() => {
+    dispatch({ type: 'CLOSE_ADD_POST_MODAL' });
+  }, []);
+
+  const handleFormChange = useCallback((field, value) => {
+    dispatch({ type: 'UPDATE_POST_FORM', field, value });
+  }, []);
+
+  const handleAddPost = useCallback(async (title, content) => {
+    const tempId = `temp-\${Date.now()}`;
+    
+    dispatch({ 
+      type: 'ADD_POST_OPTIMISTIC', 
+      tempId,
+      title,
+      content
+    });
+    
+    try {
+      const newPost = await mockApi.createPost(title, content);
+      dispatch({ 
+        type: 'ADD_POST_SUCCESS', 
+        tempId,
+        post: newPost
+      });
+      dispatch({ type: 'CLOSE_ADD_POST_MODAL' });
+    } catch (error) {
+      dispatch({ 
+        type: 'ADD_POST_ERROR', 
+        tempId,
+        error: error.message
+      });
+    }
+  }, []);
+
   // Memoized posts array to prevent unnecessary re-renders
   const postsArray = useMemo(() => 
     Object.values(posts).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
@@ -122,6 +162,10 @@ export const usePosts = () => {
     handleStartComment,
     handleUpdateComment,
     handleCancelComment,
+    handleOpenAddPost,
+    handleCloseAddPost,
+    handleFormChange,
+    handleAddPost,
     dispatch
   };
 };

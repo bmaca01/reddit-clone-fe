@@ -7,9 +7,13 @@ import {
   Button,
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
-import PostComponent from './Post/PostComponent';
+
 import { usePosts } from '../hooks/usePosts';
 import api from '../utils/api';
+
+import PostComponent from './Post/PostComponent';
+import AddPostFab from './Post/AddPostFab';
+import AddPostModal from './Post/AddPostForm';
 
 const PostsFeed = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -25,6 +29,10 @@ const PostsFeed = () => {
     handleStartComment,
     handleUpdateComment,
     handleCancelComment,
+    handleOpenAddPost,
+    handleCloseAddPost,
+    handleFormChange,
+    handleAddPost,
     dispatch,
   } = usePosts();
 
@@ -97,6 +105,21 @@ const PostsFeed = () => {
           onCancelComment={handleCancelComment}
         />
       ))}
+
+      {/* Add the modal and FAB */}
+      {console.log(posts)}
+      
+      <AddPostModal
+        isOpen={posts.ui?.addPostModal?.isOpen || false}
+        onClose={handleCloseAddPost}
+        onSubmit={handleAddPost}
+        formData={posts.ui?.addPostModal?.form || { title: '', content: '' }}
+        onFormChange={handleFormChange}
+        isSubmitting={posts.ui?.addPostModal?.form?.isSubmitting || false}
+        errors={posts.ui?.addPostModal?.form?.errors || {}}
+      />
+      
+      <AddPostFab onClick={handleOpenAddPost} />
     </Container>
   );
 };

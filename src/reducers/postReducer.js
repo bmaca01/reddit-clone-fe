@@ -28,8 +28,17 @@ const postsReducer = (state, action) => {
             isCommenting: false,
             isAddingComment: false,
             newComment: '',
-            errors: {}
-          }
+            errors: {},
+            addPostModal: {
+              isOpen: false,  // or false
+              form: {
+                title: '',
+                content: '',
+                isSubmitting: false,
+                errors: {}
+              }
+            }
+          },
         }
       }), {});
 
@@ -267,6 +276,96 @@ const postsReducer = (state, action) => {
           }
         }
       }
+        
+    case 'OPEN_ADD_POST_MODAL':
+      //console.log(state);
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          addPostModal: {
+            isOpen: true,
+            form: {
+              title: '',
+              content: '',
+              isSubmitting: false,
+              errors: {}
+            }
+          }
+        }
+      };
+
+    case 'CLOSE_ADD_POST_MODAL':
+      return {
+        ...state,
+        [state.ui]: {
+          ...state.ui,
+          addPostModal: {
+            ...state.addPostModal,
+            isOpen: false
+          }
+        }
+      };
+
+    case 'UPDATE_POST_FORM':
+      return {
+        ...state,
+        [state.ui]: {
+          ...state.ui,
+          addPostModal: {
+            ...state.addPostModal,
+            form: {
+              ...state.addPostModal.form,
+              [action.field]: action.value,
+              errors: {
+                ...state.addPostModal.form.errors,
+                [action.field]: null
+              }
+            }
+          }
+        }
+      };
+
+    case 'ADD_POST_OPTIMISTIC':
+      return {
+        ...state,
+        [action.tempId]: {
+          id: action.tempId,
+          title: action.title,
+          content: action.content,
+          author: 'Current User',
+          timestamp: 'Just now',
+          votes: { up: 0, down: 0 },
+          userVote: null,
+          comments: [],
+          isPending: true,
+          ui: {
+            commentsExpanded: false,
+            isVoting: false,
+            isCommenting: false,
+            isAddingComment: false,
+            newComment: '',
+            errors: {},
+            addPostModal: {
+              ...state.ui.addPostModal,
+              form: {
+                ...state.ui.addPostModal.form,
+                isSubmitting: true
+              }
+            }
+          }
+        },
+      };
+
+    case 'ADD_POST_SUCCESS':
+      return {
+
+      };
+    
+    case 'ADD_POST_ERROR':
+      return {
+
+      };
 
     default:
       return state;

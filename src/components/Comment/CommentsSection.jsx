@@ -19,7 +19,7 @@ const CommentsSection = ({
   onUpdateComment,
   onCancelComment,
 }) => {
-  console.log(post);
+  //console.log(post);
   return (
     <>
       <Box className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">

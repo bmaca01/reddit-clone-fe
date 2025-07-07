@@ -52,6 +52,10 @@ function Navbar() {
     handleClose();
   };
 
+  const handleCreatePost = () => {
+
+  };
+
   return (
     <AppBar position="fixed" className="bg-white shadow-lg">
       <Toolbar className="gap-x-2 mx-96">
@@ -83,6 +87,14 @@ function Navbar() {
         <Box className="flex items-center space-x-4">
           {user ? (
             <>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => handleCreatePost}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Create Post
+              </Button>
               <IconButton
                 size="large"
                 onClick={handleMenu}
