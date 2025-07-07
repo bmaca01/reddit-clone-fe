@@ -36,6 +36,8 @@ import {
   Close
 } from '@mui/icons-material'
 
+import VotingSection from './Post/VotingSection'
+
 import { useAuth } from '../contexts/AuthContext'
 import useRelativeTime from '../hooks/useRelativeTime'
 import { getInitials } from '../utils/helpers'
@@ -154,52 +156,15 @@ function Post(props) {
         </Typography>
 
         {/* Voting Section */}
-        <Box className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-          <div className="flex items-center gap-2">
-            <IconButton
-              onClick={() => handleVote('up')}
-              disabled={post.ui.isVoting}
-              className={`transition-all duration-200 hover:scale-110 ${
-                post.userVote === 'up' 
-                  ? 'text-green-600 bg-green-100 hover:bg-green-200' 
-                  : 'text-gray-500 hover:text-green-600 hover:bg-green-50'
-              }`}
-              size="small"
-            >
-              {post.ui.isVoting ? (
-                <CircularProgress size={20} className="text-green-600" />
-              ) : (
-                <ThumbUp fontSize="small" />
-              )}
-            </IconButton>
-            <Typography variant="body2" className="font-semibold text-gray-700 min-w-[2rem] text-center">
-              {post.votes.up}
-            </Typography>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <IconButton
-              onClick={() => handleVote('down')}
-              disabled={post.ui.isVoting}
-              className={`transition-all duration-200 hover:scale-110 ${
-                post.userVote === 'down' 
-                  ? 'text-red-600 bg-red-100 hover:bg-red-200' 
-                  : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
-              }`}
-              size="small"
-            >
-              {post.ui.isVoting ? (
-                <CircularProgress size={20} className="text-red-600" />
-              ) : (
-                <ThumbDown fontSize="small" />
-              )}
-            </IconButton>
-            <Typography variant="body2" className="font-semibold text-gray-700 min-w-[2rem] text-center">
-              {post.votes.down}
-            </Typography>
-          </div>
-        </Box>
-
+        <VotingSection
+          user={user}
+          votes={post.votes}
+          userVote={post.userVote}
+          isVoting={post.ui.isVoting}
+          onVote={handleVote}
+          variant='post'
+          disabled={post.ui.isVoting}
+        />
 
         <Divider className="py-2"/>
 
