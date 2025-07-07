@@ -1,0 +1,74 @@
+import {
+  Box,
+  Typography,
+  IconButton,
+  Collapse,
+  Alert,
+} from '@mui/material';
+import { Comment as CommentIcon, ExpandMore, ExpandLess } from '@mui/icons-material';
+import CommentItem from './CommentItem';
+import CommentForm from './CommentForm';
+
+const CommentsSection = ({
+  post,
+  onCommentVote,
+  onAddComment,
+  onToggleComments,
+  onStartComment,
+  onUpdateComment,
+  onCancelComment,
+}) => {
+  return (
+    <>
+      <Box className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+        <div className="flex items-center gap-3">
+          <CommentIcon className="text-blue-600" fontSize="small" />
+          <Typography variant="body2" className="font-semibold text-blue-800">
+            {post.comments.length} Comments
+          </Typography>
+        </div>
+
+        <IconButton
+          onClick={() => onToggleComments(post.id)}
+          className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 transition-colors duration-200"
+          size="small"
+        >
+          {post.ui.commentsExpanded ? <ExpandLess /> : <ExpandMore />}
+        </IconButton>
+      </Box>
+
+      <Collapse in={post.ui.commentsExpanded} timeout="auto" unmountOnExit>
+        <div className="mt-6 space-y-4">
+          {post.ui.errors.comment && (
+            <Alert severity="error">
+              Failed to add comment: {post.ui.errors.comment}
+            </Alert>
+          )}
+
+          <CommentForm
+            postId={post.post_id}
+            isAddingComment={post.ui.isAddingComment}
+            newComment={post.ui.newComment}
+            isCommenting={post.ui.isCommenting}
+            onStartComment={() => onStartComment(post.post_id)}
+            onUpdateComment={(text) => onUpdateComment(post.post_id, text)}
+            onCancelComment={() => onCancelComment(post.post_id)}
+            onAddComment={() => onAddComment(post.post_id, post.ui.newComment.trim())}
+          />
+
+          <div className="space-y-6">
+            {post.comments.map((comment, index) => (
+              <CommentItem
+                comment={comment}
+                onVote={(commentId, type) => onCommentVote(post.id, commentId, type)}
+                postId={post.post_id}
+              />
+            ))}
+          </div>
+        </div>
+      </Collapse>
+    </>
+  );
+};
+
+export default CommentsSection;

@@ -4,191 +4,9 @@ import { Container, Typography, Button, Box, Paper } from '@mui/material'
 import { useAuth } from '../contexts/AuthContext'
 import Post from '../components/Post'
 import api from '../utils/api'
-import axios from 'axios'
+import postsReducer from '../reducers/postReducer'
+//import axios from 'axios'
 
-// Posts reducer for complex state management
-const postsReducer = (state, action) => {
-  switch (action.type) {
-    case 'INITIALIZE_POSTS':
-      return action.posts.reduce((acc, post) => ({
-        ...acc,
-        [post.post_id]: {
-          ...post,
-          votes: { up: post.up_votes || 0, down: post.down_votes || 0 },
-          userVote: post.user_vote || null,
-          comments: post.comments || [],
-          ui: {
-            commentsExpanded: false,
-            isVoting: false,
-            isCommenting: false,
-            isAddingComment: false,
-            newComment: '',
-            errors: {}
-          }
-        }
-      }), {});
-
-    case 'START_VOTE':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          ui: { ...state[action.postId].ui, isVoting: true }
-        }
-      };
-
-    case 'UPDATE_POST_VOTES':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          votes: action.votes,
-          userVote: action.userVote,
-          ui: { 
-            ...state[action.postId].ui, 
-            isVoting: false,
-            errors: { ...state[action.postId].ui.errors, vote: null }
-          }
-        }
-      };
-
-    case 'VOTE_ERROR':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          ui: {
-            ...state[action.postId].ui,
-            isVoting: false,
-            errors: { ...state[action.postId].ui.errors, vote: action.error }
-          }
-        }
-      };
-
-    case 'TOGGLE_COMMENTS':
-      console.log(action)
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          ui: {
-            ...state[action.postId].ui,
-            commentsExpanded: !state[action.postId].ui.commentsExpanded
-          }
-        }
-      };
-
-    case 'START_COMMENT':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          ui: { ...state[action.postId].ui, isAddingComment: true }
-        }
-      };
-
-    case 'UPDATE_COMMENT_TEXT':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          ui: { ...state[action.postId].ui, newComment: action.text }
-        }
-      };
-
-    case 'CANCEL_COMMENT':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          ui: { 
-            ...state[action.postId].ui, 
-            isAddingComment: false, 
-            newComment: '',
-            errors: { ...state[action.postId].ui.errors, comment: null }
-          }
-        }
-      };
-
-    case 'ADD_COMMENT_OPTIMISTIC':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          comments: [
-            ...state[action.postId].comments,
-            {
-              id: action.tempId,
-              author: 'Current User',
-              content: action.content,
-              upvotes: 0,
-              downvotes: 0,
-              userVote: null,
-              isPending: true
-            }
-          ],
-          ui: {
-            ...state[action.postId].ui,
-            isCommenting: true,
-            newComment: '',
-            isAddingComment: false
-          }
-        }
-      };
-
-    case 'COMMENT_SUCCESS':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          comments: state[action.postId].comments.map(comment =>
-            comment.id === action.tempId 
-              ? { ...action.comment, isPending: false }
-              : comment
-          ),
-          ui: {
-            ...state[action.postId].ui,
-            isCommenting: false,
-            errors: { ...state[action.postId].ui.errors, comment: null }
-          }
-        }
-      };
-
-    case 'COMMENT_ERROR':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          comments: state[action.postId].comments.filter(
-            comment => comment.id !== action.tempId
-          ),
-          ui: {
-            ...state[action.postId].ui,
-            isCommenting: false,
-            isAddingComment: true,
-            newComment: action.originalText,
-            errors: { ...state[action.postId].ui.errors, comment: action.error }
-          }
-        }
-      };
-
-    case 'UPDATE_COMMENT_VOTES':
-      return {
-        ...state,
-        [action.postId]: {
-          ...state[action.postId],
-          comments: state[action.postId].comments.map(comment =>
-            comment.id === action.commentId
-              ? { ...comment, upvotes: action.upvotes, downvotes: action.downvotes, userVote: action.userVote }
-              : comment
-          )
-        }
-      };
-
-    default:
-      return state;
-  }
-};
 
 function Home() {
   const { user } = useAuth();
@@ -202,7 +20,7 @@ function Home() {
     try {
       const res = await api.get('/social_media');
       //const res = await axios.get('https://jsonplaceholder.typicode.com/posts/');
-      console.log(res.data);
+      //console.log(res.data);
       dispatch({ type: 'INITIALIZE_POSTS', posts: res.data.items })
       //setPosts(res.data.items);
     } catch (err) {
@@ -239,20 +57,22 @@ function Home() {
     }
   }, []);
 
-  const handleCommentVote = useCallback(async (postId, commentId, voteType) => {
+  const handleCommentVote = useCallback(async (postId, commentId, voteType, upVotes, dnVotes) => {
     // Implement comment voting logic
+    dispatch({ type: 'START_COMMENT_VOTE', commentId})
     try {
       //await mockApi.voteComment(postId, commentId, voteType);
       await api.post(`/social_media/comment/${commentId}`, { 'vote': voteType });
 
+      //console.log(`Comment ${commentId} has ${upVotes} up-votes and ${dnVotes} down-votes`)
       // Update comment votes in state
       dispatch({
         type: 'UPDATE_COMMENT_VOTES',
         postId,
         commentId,
         // These would be calculated based on current state + vote type
-        upvotes: 0,
-        downvotes: 0,
+        upvotes: upVotes,
+        downvotes: dnVotes,
         userVote: voteType
       });
     } catch (error) {
@@ -261,11 +81,12 @@ function Home() {
     }
   }, []);
 
-  const handleAddComment = useCallback(async (authorId, postId, content) => {
+  const handleAddComment = useCallback(async (commentAuthorId, postAuthorId, postId, content) => {
     const tempId = `temp-${Date.now()}`;
     
     dispatch({ 
       type: 'ADD_COMMENT_OPTIMISTIC', 
+      commentAuthorId,
       postId, 
       content,
       tempId
@@ -273,15 +94,16 @@ function Home() {
     
     try {
       //const newComment = await mockApi.addComment(postId, content);
-      const newComment = await api.post(`/social_media/${authorId}/post/${postId}/comment`, {
-        'content': content
+      const newComment = await api.post(`/social_media/${postAuthorId}/post/${postId}/comment`, {
+        'content': content,
+        'temp_id': tempId   // Server sends this back on success as a field in newComment
       });
 
       dispatch({ 
         type: 'COMMENT_SUCCESS', 
         postId, 
         tempId,
-        comment: newComment
+        comment: {...newComment.data.comment}
       });
     } catch (error) {
       dispatch({ 
@@ -334,7 +156,7 @@ function Home() {
       ) : (
         postsArray.map(post => (
           <div key={post.post_id} className="pt-4">
-            {console.log(post)}
+            {/**console.log(post)*/}
             <Post 
               post={post}
               onVote={handleVote}

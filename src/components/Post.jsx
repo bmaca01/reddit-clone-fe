@@ -157,13 +157,18 @@ function Post(props) {
     user_vote,
     votes
   } = post;
+  const getInitials = (name) => {
+    return 'AA'
+    //return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
 
   const { user } = useAuth();
-  const [postUserVote, setPostUserVote] = useState(null);
-  const [commentsExpanded, setCommentsExpanded] = useState(false);
-  const [newComment, setNewComment] = useState('');
-  const [isAddingComment, setIsAddingComment] = useState(false);
+  //const [postUserVote, setPostUserVote] = useState(null);
+  //const [commentsExpanded, setCommentsExpanded] = useState(false);
+  //const [newComment, setNewComment] = useState('');
+  //const [isAddingComment, setIsAddingComment] = useState(false);
   //const [comments, setComments] = useState([]);
+
 
   const navigate = useNavigate()
   const relTime = useRelativeTime(created_at)
@@ -188,9 +193,25 @@ function Post(props) {
     }, newVote);
   }, [post, onVote]);
 
+  const handleCommentVote = useCallback(async (voteType, comment) => {
+    if (comment.isVoting) return;
+
+    const previousVote = comment.user_vote;
+    let newVote = previousVote === voteType ? null : voteType;
+    let newUpvotes = comment.up_votes;
+    let newDownvotes = comment.down_votes;
+
+    if (previousVote === 'up') newUpvotes--;
+    if (previousVote === 'down') newDownvotes--;
+    if (newVote === 'up') newUpvotes++;
+    if (newVote === 'down') newDownvotes++;
+
+    await onCommentVote(post.post_id, comment.comment_id, voteType, newUpvotes, newDownvotes);
+  }, [post, onCommentVote])
+
   const handleAddComment = useCallback(async () => {
     if (!post.ui.newComment.trim() || post.ui.isCommenting) return;
-    await onAddComment(post.post_id, post.ui.newComment.trim());
+    await onAddComment(user.user_id, post.user_id, post.post_id, post.ui.newComment.trim());
   }, [post, onAddComment]);
 
   //useEffect(() => {
@@ -430,8 +451,9 @@ function Post(props) {
 
             {/* Existing Comments */}
             <div className="space-y-6">
-              {post.comments.map((comment, index) => (
+              {comments.map((comment, index) => (
                 <div key={comment.comment_id} className="space-y-4">
+                  {/**console.log(comment)*/}
                   <div className={`flex gap-4 p-4 rounded-xl border transition-shadow duration-200 ${
                     comment.isPending 
                       ? 'bg-gray-50 border-gray-300 opacity-70' 
@@ -444,7 +466,7 @@ function Post(props) {
                     <div className="flex-grow space-y-2">
                       <div className="flex items-center gap-2">
                         <Typography variant="subtitle2" className="font-bold text-gray-800">
-                          {comment.author}
+                          {comment.author.username}
                         </Typography>
                         {comment.isPending && (
                           <CircularProgress size={12} className="text-gray-400" />
@@ -458,10 +480,16 @@ function Post(props) {
                       <div className="flex items-center gap-3 pt-2">
                         <div className="flex items-center gap-1">
                           <IconButton
-                            onClick={() => onCommentVote(post.post_id, comment.comment_id, 'up')}
+                            onClick={() => onCommentVote(
+                              post.post_id, 
+                              comment.comment_id, 
+                              'up', 
+                              comment.up_votes, 
+                              comment.down_votes
+                            )}
                             disabled={comment.isPending}
                             className={`transition-all duration-200 hover:scale-110 ${
-                              comment.userVote === 'up' 
+                              comment.user_vote === 'up' 
                                 ? 'text-green-600 bg-green-100 hover:bg-green-200' 
                                 : 'text-gray-500 hover:text-green-600 hover:bg-green-50'
                             }`}
@@ -470,16 +498,22 @@ function Post(props) {
                             <ThumbUp fontSize="small" />
                           </IconButton>
                           <Typography variant="caption" className="font-medium text-gray-600 min-w-[1.5rem] text-center">
-                            {comment.upvotes}
+                            {comment.up_votes}
                           </Typography>
                         </div>
                         
                         <div className="flex items-center gap-1">
                           <IconButton
-                            onClick={() => onCommentVote(post.post_id, comment.comment_id, 'down')}
+                            onClick={() => onCommentVote(
+                              post.post_id, 
+                              comment.comment_id, 
+                              'down', 
+                              comment.up_votes, 
+                              comment.down_votes
+                            )}
                             disabled={comment.isPending}
                             className={`transition-all duration-200 hover:scale-110 ${
-                              comment.userVote === 'down' 
+                              comment.user_vote === 'down' 
                                 ? 'text-red-600 bg-red-100 hover:bg-red-200' 
                                 : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
                             }`}
@@ -488,7 +522,7 @@ function Post(props) {
                             <ThumbDown fontSize="small" />
                           </IconButton>
                           <Typography variant="caption" className="font-medium text-gray-600 min-w-[1.5rem] text-center">
-                            {comment.downvotes}
+                            {comment.down_votes}
                           </Typography>
                         </div>
                       </div>
