@@ -59,7 +59,7 @@ function VotingSection({
           Failed to save vote: {error}
         </Alert>
       )}
-      <Box className="getContainerStyles()">
+      <Box className={getContainerStyles()}>
         <div className="flex items-center gap-2">
           <IconButton
             onClick={() => handleVote('up')}

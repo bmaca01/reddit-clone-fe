@@ -44,7 +44,7 @@ const CommentItem = ({
 
   return (
     <div className={`flex gap-4 p-4 rounded-xl border transition-shadow duration-200 ${
-      comment.isPending 
+      comment.ui.isPending 
         ? 'bg-gray-50 border-gray-300 opacity-70' 
         : 'bg-white border-gray-200 hover:shadow-md'
     }`}>
@@ -60,7 +60,7 @@ const CommentItem = ({
           <Typography variant="subtitle2" className="font-bold text-gray-800">
             {comment.author}
           </Typography>
-          {comment.isPending && (
+          {comment.ui.isPending && (
             <div className="flex items-center gap-1">
               <CircularProgress size={12} className="text-gray-400" />
               <Typography variant="caption" className="text-gray-500">
@@ -84,9 +84,9 @@ const CommentItem = ({
         
         {/* Comment Voting Section */}
         <VotingSection
-          votes={{ up: comment.upvotes, down: comment.downvotes }}
-          userVote={comment.userVote}
-          isVoting={comment.isVoting}
+          votes={{ up: comment.up_votes, down: comment.down_votes }}
+          userVote={comment.user_vote}
+          isVoting={comment.ui.isVoting}
           onVote={handleCommentVote}
           error={comment.voteError}
           variant="comment"
