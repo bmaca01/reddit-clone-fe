@@ -33,7 +33,7 @@ const CommentForm = ({
   isAddingComment,
   newComment,
   isCommenting,
-  error,
+  error = null,
   onStartComment,
   onUpdateComment,
   onCancelComment,

@@ -36,10 +36,13 @@ const CommentItem = ({
     if (newVote === 'up') newUpvotes++;
     if (newVote === 'down') newDownvotes++;
 
-    // TODO fix Home.handleCommentVote callback signature
     await onVote(
-      postId, comment.temp_id, comment.comment_id, 
-      voteType, newUpvotes, newDownvotes, newVote
+      { 
+        postId, 
+        tempId: comment.temp_id, 
+        commentId: comment.comment_id 
+      }, 
+      voteType, { upVotes: newUpvotes, dnVotes: newDownvotes }, newVote
     );
   }, [comment, onVote, postId]);
 
@@ -78,9 +81,9 @@ const CommentItem = ({
         
         {/* Comment Vote Error Display */}
         {/** TODO: Implement voteError attribute */}
-        {comment.voteError && (
+        {comment.ui.voteError && (
           <Alert severity="error" className="mt-2">
-            Failed to vote: {comment.voteError}
+            Failed to vote: {comment.ui.voteError}
           </Alert>
         )}
         
@@ -90,7 +93,7 @@ const CommentItem = ({
           userVote={comment.user_vote}
           isVoting={comment.ui.isVoting}
           onVote={handleCommentVote}
-          error={comment.voteError}
+          error={comment.ui.voteError}
           variant="comment"
           disabled={comment.isPending}
         />

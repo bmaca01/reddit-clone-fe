@@ -1,15 +1,48 @@
-import { useReducer, useCallback, useMemo } from 'react'
+import { useState, useEffect, useReducer, useCallback, useMemo } from 'react'
+import { Link } from 'react-router-dom'
+import { Container, Typography, Button, Box, Paper } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
+import { useAuth } from '../contexts/AuthContext'
+//import Post from '../components/Post'
+import PostComponent from '../components/Post/PostComponent'
+import api from '../utils/api'
 import postsReducer from '../reducers/postReducer'
-import api from '../utils/api';
+//import axios from 'axios'
 
-export const usePosts = () => {
+
+function Home() {
+  const { user } = useAuth();
+  //const [posts, setPosts] = useState([]);
   const [posts, dispatch] = useReducer(postsReducer, {});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/social_media');
+      //const res = await axios.get('https://jsonplaceholder.typicode.com/posts/');
+      console.log(res.data);
+      dispatch({ type: 'INITIALIZE_POSTS', posts: res.data.items })
+      //setPosts(res.data.items);
+    } catch (err) {
+      console.log(err);
+      setError('Failed to load posts :(');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   // Memoized callbacks to prevent unnecessary re-renders
   const handleVote = useCallback(async (postId, voteType, votes, userVote) => {
     dispatch({ type: 'START_VOTE', postId });
+    
     try {
+      //await mockApi.vote(postId, voteType);
       await api.post(`/social_media/post/${postId}`, { 'vote': voteType });
       dispatch({ 
         type: 'UPDATE_POST_VOTES', 
@@ -26,35 +59,32 @@ export const usePosts = () => {
     }
   }, []);
 
-  const handleCommentVote = useCallback(async (ids, voteType, votes, userVote) => {
+  // TODO: Make this more succinct....
+  const handleCommentVote = useCallback(async (postId, tempId, commentId, voteType, upVotes, dnVotes, userVote) => {
     // Implement comment voting logic
-    dispatch({ type: 'START_COMMENT_VOTE', postId: ids.postId, tempId: ids.tempId })
+    dispatch({ type: 'START_COMMENT_VOTE', postId, tempId})
     try {
       //await mockApi.voteComment(postId, commentId, voteType);
-      await api.post(`/social_media/comment/${ids.commentId}`, { 'vote': voteType });
+      await api.post(`/social_media/comment/${commentId}`, { 'vote': voteType });
 
       //console.log(`Comment ${commentId} has ${upVotes} up-votes and ${dnVotes} down-votes`)
       // Update comment votes in state
       dispatch({
         type: 'UPDATE_COMMENT_VOTES',
+        postId,
+        tempId,
+        commentId,
         // These would be calculated based on current state + vote type
-        postId: ids.postId,
-        tempId: ids.tempId,
-        upvotes: votes.upVotes,
-        downvotes: votes.dnVotes,
+        upvotes: upVotes,
+        downvotes: dnVotes,
         userVote: userVote
       });
     } catch (error) {
       // Handle comment vote error
       console.error('Comment vote failed:', error);
-      dispatch({
-        type: 'COMMENT_VOTE_ERROR',
-        postId: ids.postId,
-        tempId: ids.tempId,
-        voteError: error.message
-      });
     }
   }, []);
+
   const handleAddComment = useCallback(async (commentAuthor, postAuthorId, postId, content) => {
     //const tempId = `temp-${Date.now()}`;
     const tempId = uuidv4();
@@ -109,20 +139,37 @@ export const usePosts = () => {
 
   // Memoized posts array to prevent unnecessary re-renders
   const postsArray = useMemo(() => 
-    Object.values(posts).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
+    Object.values(posts).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)),
     [posts]
   ); 
 
-  return {
-    posts,
-    postsArray,
-    handleVote,
-    handleCommentVote,
-    handleAddComment,
-    handleToggleComments,
-    handleStartComment,
-    handleUpdateComment,
-    handleCancelComment,
-    dispatch
-  };
+  return (
+    <Container className="mt-12">
+      {loading ? (
+        <Typography>Loading...</Typography>
+      ) : (
+        postsArray.map(post => (
+          <div key={post.post_id} className="pt-4">
+            {/**console.log(post)*/}
+            <PostComponent
+              post={post}
+              onVote={handleVote}
+              onCommentVote={handleCommentVote}
+              onAddComment={handleAddComment}
+              onToggleComments={handleToggleComments}
+              onStartComment={handleStartComment}
+              onUpdateComment={handleUpdateComment}
+              onCancelComment={handleCancelComment}
+            />
+          </div>
+          /**
+            <Post { ...{...post, ...passedProps} } />
+           * 
+           */
+        ))
+      )}
+    </Container>
+  );
 };
+
+export default Home;

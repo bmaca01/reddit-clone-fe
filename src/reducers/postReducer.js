@@ -173,19 +173,17 @@ const postsReducer = (state, action) => {
       };
 
     case 'COMMENT_ERROR':
+      const { [action.tempId]: _, ...newState } = state;  // Remove the optimistic comment by making a new state
       return {
-        ...state,
+        ...newState,
         [action.postId]: {
-          ...state[action.postId],
-          comments: state[action.postId].comments.filter(
-            comment => comment.comment_id !== action.tempId
-          ),
+          ...newState[action.postId],
           ui: {
-            ...state[action.postId].ui,
+            ...newState[action.postId].ui,
             isCommenting: false,
             isAddingComment: true,
             newComment: action.originalText,
-            errors: { ...state[action.postId].ui.errors, comment: action.error }
+            errors: { ...newState[action.postId].ui.errors, comment: action.error }
           }
         }
       };
@@ -200,9 +198,8 @@ const postsReducer = (state, action) => {
             [action.tempId]: {
               ...state[action.postId].comments[action.tempId],
               ui: {
-                isPending: false,
+                ...state[action.postId].comments[action.tempId].ui,
                 isVoting: true,
-                errors: {}
               }
             }
           }
@@ -222,9 +219,13 @@ const postsReducer = (state, action) => {
               down_votes: action.downvotes,
               user_vote: action.userVote,
               ui: {
+                ...state[action.postId].comments[action.tempId].ui,
                 isPending: false,
                 isVoting: false,
-                errors: {}
+                errors: {
+                  ...state[action.postId].comments[action.tempId].ui.errors,
+                  voteError: null,
+                }
               }
             }
           }
@@ -250,13 +251,15 @@ const postsReducer = (state, action) => {
         [action.postId]: {
           ...state[action.postId],
           comments: {
-            [action.commentId]: {
-              ...state[action.postId].comments[action.commentId],
+            ...state[action.postId].comments,
+            [action.tempId]: {
+              ...state[action.postId].comments[action.tempId],
               ui: {
+                ...state[action.postId].comments[action.tempId].ui,
                 isPending: false,
                 isVoting: false,
                 errors: {
-                  ...state[action.postId].comments[action.commentId].ui.errors,
+                  ...state[action.postId].comments[action.tempId].ui.errors,
                   voteError: action.error
                 }
               }

@@ -15,7 +15,6 @@ import {
 import { useAuth } from '../../contexts/AuthContext'
 
 const VotingSection = ({
-  //user,
   votes, userVote, 
   isVoting = false, onVote, 
   error = null, variant = 'post',
