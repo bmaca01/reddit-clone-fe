@@ -50,7 +50,7 @@ function PostComponent(props) {
     votes
   } = post;
   //console.log(ui)
-  console.log(votes)
+  //console.log(votes)
   const { user } = useAuth();
 
   const navigate = useNavigate()
@@ -69,6 +69,8 @@ function PostComponent(props) {
     if (previousVote === 'down') newDownvotes--;
     if (newVote === 'up') newUpvotes++;
     if (newVote === 'down') newDownvotes++;
+
+    //console.log({ post_id, temp_id, voteType, newVote })
 
     await onVote(post_id, temp_id, voteType, {
       up: newUpvotes,

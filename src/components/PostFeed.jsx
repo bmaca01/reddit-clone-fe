@@ -80,18 +80,6 @@ const PostsFeed = () => {
 
   return (
     <Container maxWidth="md" className="py-8">
-      <Typography
-        variant="h3"
-        component="h1"
-        className="text-center mb-8 font-bold text-gray-800"
-      >
-        Social Posts Feed
-      </Typography>
-
-      <Typography variant="body1" className="text-center mb-8 text-gray-600">
-        Enhanced with Comment Voting - {postsArray.length} posts loaded
-      </Typography>
-
       {postsArray.map((post) => (
         <PostComponent
           key={post.post_id}

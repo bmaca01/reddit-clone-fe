@@ -80,7 +80,7 @@ export const usePosts = () => {
         type: 'COMMENT_SUCCESS', 
         postId: postTempId, 
         tempId,
-        comment: {...newComment.data.comment}
+        comment: newComment.data.comment
       });
     } catch (error) {
       dispatch({ 
@@ -145,10 +145,11 @@ export const usePosts = () => {
           temp_id: tempId
         }
       );
+      console.log(newPost)
       dispatch({ 
         type: 'ADD_POST_SUCCESS', 
         tempId,
-        post: newPost
+        post: newPost.data.post
       });
       dispatch({ type: 'CLOSE_ADD_POST_MODAL' });
     } catch (error) {

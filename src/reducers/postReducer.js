@@ -371,6 +371,7 @@ const postsReducer = (state, action) => {
           [action.tempId]: {
             author: action.postAuthor,
             user_id: action.userId,
+            post_id: null,
             temp_id: action.tempId,
             title: action.title,
             content: action.content,
@@ -415,6 +416,8 @@ const postsReducer = (state, action) => {
           ...state.data,
           [action.tempId]: {
             ...state.data[action.tempId],
+            ...action.post,
+            //post_id: action.post.post_id,
             ui: {
               ...state.data[action.tempId].ui,
               isPending: false,
