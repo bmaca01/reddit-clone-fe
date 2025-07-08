@@ -3,8 +3,12 @@ import {
   Avatar,
   Typography,
   CircularProgress,
-  Alert
+  Alert,
+  IconButton,
+  Menu,
+  MenuItem
 } from '@mui/material';
+import { MoreVert } from '@mui/icons-material';
 import VotingSection from '../Post/VotingSection';
 import { getInitials } from '../../utils/helpers';
 
@@ -49,20 +53,19 @@ const CommentItem = ({
   }, [comment, onVote, postId]);
 
   return (
-    <div className={`flex gap-4 p-4 rounded-xl border transition-shadow duration-200 ${
+    <div className={`gap-4 p-4 rounded-xl border transition-shadow duration-200 ${
       comment.ui.isPending 
         ? 'bg-gray-50 border-gray-300 opacity-70' 
         : 'bg-white border-gray-200 hover:shadow-md'
     }`}>
-      {/* Comment Author Avatar */}
-      <Avatar className="bg-gradient-to-r from-indigo-500 to-purple-600 w-10 h-10 text-white font-bold shadow-sm">
-        {getInitials(comment.author)}
-      </Avatar>
-      
-      {/* Comment Content */}
-      <div className="flex-grow space-y-2">
+      <div className="flex gap-4 p-r-4 p-y-4">
+        {/* Comment Author Avatar */}
+        <Avatar className="bg-gradient-to-r from-indigo-500 to-purple-600 w-10 h-10 text-white font-bold shadow-sm">
+          {getInitials(comment.author)}
+        </Avatar>
+
         {/* Author Name and Pending Indicator */}
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2">
           <Typography variant="subtitle2" className="font-bold text-gray-800">
             {comment.author.username}
           </Typography>
@@ -76,30 +79,43 @@ const CommentItem = ({
           )}
         </div>
 
-        {/* Comment Text */}
-        <Typography variant="body2" className="text-gray-700 leading-relaxed">
-          {comment.content}
-        </Typography>
-        
-        {/* Comment Vote Error Display */}
-        {/** TODO: Implement voteError attribute */}
-        {comment.ui.voteError && (
-          <Alert severity="error" className="mt-2">
-            Failed to vote: {comment.ui.voteError}
-          </Alert>
-        )}
-        
-        {/* Comment Voting Section */}
-        <VotingSection
-          votes={{ up: comment.up_votes, down: comment.down_votes }}
-          userVote={comment.user_vote}
-          isVoting={comment.ui.isVoting}
-          onVote={handleCommentVote}
-          error={comment.ui.voteError}
-          variant="comment"
-          disabled={comment.isPending}
-        />
+        <IconButton>
+          <MoreVert />
+        </IconButton>
+
       </div>
+      
+      <div className="flex p-x-8 p-y-4">
+        {/* Comment Content */}
+
+        <div className="flex-grow space-y-2">
+          {/* Comment Text */}
+          <Typography variant="body2" className="text-gray-700 leading-relaxed">
+            {comment.content}
+          </Typography>
+          
+          {/* Comment Vote Error Display */}
+          {/** TODO: Implement voteError attribute */}
+          {comment.ui.voteError && (
+            <Alert severity="error" className="mt-2">
+              Failed to vote: {comment.ui.voteError}
+            </Alert>
+          )}
+          
+          {/* Comment Voting Section */}
+          <VotingSection
+            votes={{ up: comment.up_votes, down: comment.down_votes }}
+            userVote={comment.user_vote}
+            isVoting={comment.ui.isVoting}
+            onVote={handleCommentVote}
+            error={comment.ui.voteError}
+            variant="comment"
+            disabled={comment.isPending}
+          />
+        </div>
+
+      </div>
+
     </div>
   );
 };

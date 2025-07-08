@@ -52,10 +52,6 @@ function Navbar() {
     handleClose();
   };
 
-  const handleCreatePost = () => {
-
-  };
-
   return (
     <AppBar position="fixed" className="bg-white shadow-lg">
       <Toolbar className="gap-x-2 mx-96">

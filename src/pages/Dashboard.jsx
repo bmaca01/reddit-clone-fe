@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 function Dashboard() {
   const { user } = useAuth();
+  console.log(user);
 
   const cards = [
     {

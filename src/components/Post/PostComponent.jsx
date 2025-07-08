@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { 
@@ -9,7 +9,15 @@ import {
   Typography, 
   Divider,
   Avatar,
+  IconButton,
+  Menu,
+  MenuItem,
+  MenuList,
 } from '@mui/material'
+
+import {
+  MoreVert
+} from '@mui/icons-material'
 
 import VotingSection from './VotingSection'
 import CommentsSection from '../Comment/CommentsSection'
@@ -53,8 +61,18 @@ function PostComponent(props) {
   //console.log(votes)
   const { user } = useAuth();
 
+  const [anchorEl, setAnchorEl] = useState(null);
+
   const navigate = useNavigate()
   const relTime = useRelativeTime(created_at)
+
+  const handleMenu = (e) => {
+    setAnchorEl(e.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleVote = useCallback(async (voteType) => {
     if (!user) navigate('/login');
@@ -101,7 +119,38 @@ function PostComponent(props) {
             By {author.username} • posted {relTime}
           </Typography>
         }
-      />
+        action={
+          <>
+            <IconButton 
+              onClick={handleMenu}
+              aria-label="options"
+            >
+              <MoreVert />
+            </IconButton>
+
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right'
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right'
+              }}
+            >
+              <MenuItem>Report</MenuItem>
+              <MenuItem>Delete Post</MenuItem>
+              <MenuItem>Test</MenuItem>
+              <MenuItem>Test</MenuItem>
+            </Menu>
+
+          </>
+        }
+      >
+      </CardHeader>
       <Divider />
       <CardContent>
         <Typography variant="body1" className="mb-4 leading-relaxed">
