@@ -19,7 +19,8 @@ import { getInitials } from '../../utils/helpers';
 const CommentItem = ({ 
   comment, 
   onVote, 
-  postId 
+  postId,
+  postTempId
 }) => {
   // Handle comment voting with optimistic UI updates
   const handleCommentVote = useCallback(async (voteType) => {
@@ -39,6 +40,7 @@ const CommentItem = ({
     await onVote(
       { 
         postId, 
+        postTempId: postTempId,
         tempId: comment.temp_id, 
         commentId: comment.comment_id 
       }, 

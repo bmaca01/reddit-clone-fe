@@ -7,20 +7,20 @@ export const usePosts = () => {
   const [posts, dispatch] = useReducer(postsReducer, {});
 
   // Memoized callbacks to prevent unnecessary re-renders
-  const handleVote = useCallback(async (postId, voteType, votes, userVote) => {
-    dispatch({ type: 'START_VOTE', postId });
+  const handleVote = useCallback(async (postId, tempId, voteType, votes, userVote) => {
+    dispatch({ type: 'START_VOTE', postId: tempId });
     try {
       await api.post(`/social_media/post/${postId}`, { 'vote': voteType });
       dispatch({ 
         type: 'UPDATE_POST_VOTES', 
-        postId, 
+        postId: tempId, 
         votes, 
         userVote 
       });
     } catch (error) {
       dispatch({ 
         type: 'VOTE_ERROR', 
-        postId, 
+        postId: tempId, 
         error: error.message 
       });
     }
@@ -28,7 +28,7 @@ export const usePosts = () => {
 
   const handleCommentVote = useCallback(async (ids, voteType, votes, userVote) => {
     // Implement comment voting logic
-    dispatch({ type: 'START_COMMENT_VOTE', postId: ids.postId, tempId: ids.tempId })
+    dispatch({ type: 'START_COMMENT_VOTE', postId: ids.postTempId, tempId: ids.tempId })
     try {
       //await mockApi.voteComment(postId, commentId, voteType);
       await api.post(`/social_media/comment/${ids.commentId}`, { 'vote': voteType });
@@ -38,7 +38,7 @@ export const usePosts = () => {
       dispatch({
         type: 'UPDATE_COMMENT_VOTES',
         // These would be calculated based on current state + vote type
-        postId: ids.postId,
+        postId: ids.postTempId,
         tempId: ids.tempId,
         upvotes: votes.upVotes,
         downvotes: votes.dnVotes,
@@ -49,21 +49,21 @@ export const usePosts = () => {
       console.error('Comment vote failed:', error);
       dispatch({
         type: 'COMMENT_VOTE_ERROR',
-        postId: ids.postId,
+        postId: ids.postTempId,
         tempId: ids.tempId,
         voteError: error.message
       });
     }
   }, []);
 
-  const handleAddComment = useCallback(async (commentAuthor, postAuthorId, postId, content) => {
+  const handleAddComment = useCallback(async (commentAuthor, postAuthorId, postId, postTempId, content) => {
     //const tempId = `temp-${Date.now()}`;
     const tempId = uuidv4();
     
     dispatch({ 
       type: 'ADD_COMMENT_OPTIMISTIC', 
       commentAuthor,
-      postId, 
+      postId: postTempId, 
       content,
       tempId
     });
@@ -74,16 +74,18 @@ export const usePosts = () => {
         'temp_id': tempId   // Server sends this back on success as a field in newComment
       });
 
+      console.log(newComment)
+
       dispatch({ 
         type: 'COMMENT_SUCCESS', 
-        postId, 
+        postId: postTempId, 
         tempId,
         comment: {...newComment.data.comment}
       });
     } catch (error) {
       dispatch({ 
         type: 'COMMENT_ERROR', 
-        postId, 
+        postId: postTempId, 
         tempId,
         error: error.message,
         originalText: content
@@ -119,18 +121,30 @@ export const usePosts = () => {
     dispatch({ type: 'UPDATE_POST_FORM', field, value });
   }, []);
 
-  const handleAddPost = useCallback(async (title, content) => {
-    const tempId = `temp-\${Date.now()}`;
+  const handleAddPost = useCallback(async (user, userId, title, content) => {
+    //const tempId = `temp-\${Date.now()}`;
+    const tempId = uuidv4();
     
     dispatch({ 
       type: 'ADD_POST_OPTIMISTIC', 
+      postAuthor: user,
+      userId,
       tempId,
       title,
       content
     });
     
     try {
-      const newPost = await mockApi.createPost(title, content);
+      //const newPost = await mockApi.createPost(title, content);
+      console.log(user)
+      console.log(userId)
+      const newPost = await api.post(`/social_media/${userId}/post`, 
+        {
+          title: title, 
+          content: content,
+          temp_id: tempId
+        }
+      );
       dispatch({ 
         type: 'ADD_POST_SUCCESS', 
         tempId,
@@ -147,9 +161,14 @@ export const usePosts = () => {
   }, []);
 
   // Memoized posts array to prevent unnecessary re-renders
+  //console.log(Object.values(new Object(posts.data)))
+  const data = new Object(posts.data);
+  //console.log(data)
+  //console.log(Object.keys(posts))
+  //console.log(Object.values(posts.data))
   const postsArray = useMemo(() => 
-    Object.values(posts).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
-    [posts]
+    Object.values(data).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
+    [data]
   ); 
 
   return {

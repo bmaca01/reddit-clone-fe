@@ -19,6 +19,7 @@ import useRelativeTime from '../../hooks/useRelativeTime'
 import { getInitials } from '../../utils/helpers'
 
 function PostComponent(props) {
+  //console.log(props);
   const {
     post,
     onVote,
@@ -37,6 +38,7 @@ function PostComponent(props) {
     created_at,
     down_votes,
     post_id,
+    temp_id,
     title,
     total_votes,
     ui,
@@ -47,7 +49,8 @@ function PostComponent(props) {
     user_vote,
     votes
   } = post;
-
+  //console.log(ui)
+  console.log(votes)
   const { user } = useAuth();
 
   const navigate = useNavigate()
@@ -59,15 +62,15 @@ function PostComponent(props) {
     
     const previousVote = user_vote;
     let newVote = previousVote === voteType ? null : voteType;
-    let newUpvotes = up_votes;
-    let newDownvotes = down_votes;
+    let newUpvotes = votes.up;
+    let newDownvotes = votes.down;
 
     if (previousVote === 'up') newUpvotes--;
     if (previousVote === 'down') newDownvotes--;
     if (newVote === 'up') newUpvotes++;
     if (newVote === 'down') newDownvotes++;
 
-    await onVote(post.post_id, voteType, {
+    await onVote(post_id, temp_id, voteType, {
       up: newUpvotes,
       down: newDownvotes
     }, newVote);

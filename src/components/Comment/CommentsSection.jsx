@@ -31,7 +31,7 @@ const CommentsSection = ({
         </div>
 
         <IconButton
-          onClick={() => onToggleComments(post.post_id)}
+          onClick={() => onToggleComments(post.temp_id)}
           className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 transition-colors duration-200"
           size="small"
         >
@@ -66,6 +66,7 @@ const CommentsSection = ({
                   comment={comment}
                   onVote={onCommentVote}
                   postId={post.post_id}
+                  postTempId={post.temp_id}
                 />
               </div>
             ))}

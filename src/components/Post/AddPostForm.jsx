@@ -19,12 +19,15 @@ import {
   FormatItalic
 } from '@mui/icons-material';
 
+import { useAuth } from '../../contexts/AuthContext'
+
 const AddPostModal = ({ isOpen, onClose, onSubmit, formData, onFormChange, isSubmitting, errors }) => {
+  const { user } = useAuth();
   const [richTextMode, setRichTextMode] = useState(false);
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.title.trim() && formData.content.trim()) {
-      onSubmit(formData.title.trim(), formData.content.trim());
+      onSubmit(user, user.id, formData.title.trim(), formData.content.trim());
     }
   };
 

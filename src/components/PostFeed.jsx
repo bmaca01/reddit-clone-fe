@@ -107,7 +107,7 @@ const PostsFeed = () => {
       ))}
 
       {/* Add the modal and FAB */}
-      {console.log(posts)}
+      {/*console.log(posts)*/}
       
       <AddPostModal
         isOpen={posts.ui?.addPostModal?.isOpen || false}

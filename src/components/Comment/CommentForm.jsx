@@ -41,7 +41,7 @@ const CommentForm = ({
   onCancelComment,
   onAddComment
 }) => {
-  const postId = post.post_id;
+  const postId = post.temp_id;
   const { user } = useAuth();
   const navigate = useNavigate
   // Handle comment text changes
@@ -52,7 +52,7 @@ const CommentForm = ({
   // Handle comment submission
   const handleSubmit = useCallback(async () => {
     if (!newComment.trim() || isCommenting) return;
-    await onAddComment(user, post.author.user_id, postId, newComment.trim());
+    await onAddComment(user, post.author.user_id, post.post_id, postId, newComment.trim());
   }, [postId, newComment, isCommenting, onAddComment]);
 
   // Handle form cancellation
