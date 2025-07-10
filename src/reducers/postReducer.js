@@ -1,6 +1,3 @@
-import { data } from "autoprefixer";
-
-// Posts reducer for complex state management
 const postsReducer = (state, action) => {
   switch (action.type) {
     case 'INITIALIZE_POSTS':
