@@ -136,8 +136,8 @@ export const usePosts = () => {
     
     try {
       //const newPost = await mockApi.createPost(title, content);
-      console.log(user)
-      console.log(userId)
+      //console.log(user)
+      //console.log(userId)
       const newPost = await api.post(`/social_media/${userId}/post`, 
         {
           title: title, 
@@ -145,7 +145,7 @@ export const usePosts = () => {
           temp_id: tempId
         }
       );
-      console.log(newPost)
+      //console.log(newPost)
       dispatch({ 
         type: 'ADD_POST_SUCCESS', 
         tempId,

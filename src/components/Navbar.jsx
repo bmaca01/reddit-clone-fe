@@ -10,12 +10,10 @@ import {
   MenuItem,
   IconButton,
   Avatar,
-  TextField,
   Paper,
   InputBase,
-  Container
 } from '@mui/material'
-import { AccountCircle, Dashboard, Person, ExitToApp, Search } from '@mui/icons-material'
+import { AccountCircle, Dashboard, Person, ExitToApp, Search, MenuIcon } from '@mui/icons-material'
 import { useAuth } from '../contexts/AuthContext'
 
 function Navbar() {
@@ -54,7 +52,8 @@ function Navbar() {
 
   return (
     <AppBar position="fixed" className="bg-white shadow-lg">
-      <Toolbar className="gap-x-2 mx-80">
+      <Toolbar className="flex justify-center gap-x-2 mx-80">
+        {/*Logo*/}
         <Typography
           variant="h6"
           component={Link}
@@ -64,6 +63,7 @@ function Navbar() {
           reddish
         </Typography>
 
+        {/* Search Bar */}
         <Box className="flex-grow max-w-screen-lg items-center mx-16">
           <Paper
             component="form"
@@ -80,15 +80,14 @@ function Navbar() {
           </Paper>
         </Box>
         
+        {/* Buttons */}
         <Box className="flex items-center space-x-4">
           {user ? (
             <>
-
               <Button
                 variant="contained"
                 component={Link}
                 to="/Dashboard"
-                //className="bg-blue-600 hover:bg-blue-700"
               >
                 <Dashboard />
                 Dashboard
@@ -149,7 +148,6 @@ function Navbar() {
             </>
           )}
         </Box>
-
       </Toolbar>
     </AppBar>
   );

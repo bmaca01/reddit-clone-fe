@@ -78,7 +78,6 @@ const PostsFeed = () => {
       })
 
     dispatch({type: 'OPEN_DELETE_MODAL'})
-    //await handleDeletePost()
   }, []);
 
   const handleChange = (event) => {
@@ -112,10 +111,6 @@ const PostsFeed = () => {
     );
   }
 
-  const props = {
-    isOpen: true,
-    onClose: () => (console.log('onOpen called'))
-  }
   return (
     <Container maxWidth="md" className="py-8">
       <Box className="max-w-48 flex place-content-center mx-8 gap-2">
@@ -156,8 +151,6 @@ const PostsFeed = () => {
       ))}
 
       {/* Add the modal and FAB */}
-      {/*console.log(posts)*/}
-      
       <AddPostModal
         isOpen={posts.ui?.addPostModal?.isOpen || false}
         onClose={handleCloseAddPost}
@@ -174,16 +167,8 @@ const PostsFeed = () => {
         item={deletedItem}
         onDeletePost={handleDeletePost}
         onDeleteComment={handleDeleteComment}
-        /**
-        {...{
-          isOpen: posts.ui?.deleteModal.isOpen || false,
-          onClose: () => (dispatch({type: 'CLOSE_DELETE_MODAL'})),
-        }}
-         * 
-         */
       />
 
-      
       <AddPostFab onClick={handleOpenAddPost} />
     </Container>
   );
