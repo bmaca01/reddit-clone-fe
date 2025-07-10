@@ -20,7 +20,7 @@ function DeleteDialog(props) {
     if (isComment) {
       onDeleteComment(item?.item);
     } else {
-      //onDeletePost(item);
+      onDeletePost(item?.item);
     }
 
   };
