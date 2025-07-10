@@ -40,7 +40,6 @@ export function AuthProvider({ children }) {
     // Check if user is logged in on app start
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    console.log(token)
     
     if (token && user) {
       try {

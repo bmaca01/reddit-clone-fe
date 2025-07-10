@@ -18,11 +18,14 @@ const CommentsSection = ({
   onStartComment,
   onUpdateComment,
   onCancelComment,
+  onDeleteComment,
+  onEditComment
 }) => {
   //console.log(post);
   return (
     <>
-      <Box className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+      {/* <Box className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200"> */}
+      <Box className="flex items-center justify-between p-4 bg-gradient-to-r rounded-xl border border-blue-200">
         <div className="flex items-center gap-3">
           <CommentIcon className="text-blue-600" fontSize="small" />
           <Typography variant="body2" className="font-semibold text-blue-800">
@@ -67,6 +70,8 @@ const CommentsSection = ({
                   onVote={onCommentVote}
                   postId={post.post_id}
                   postTempId={post.temp_id}
+                  onDeleteComment={onDeleteComment}
+                  onEditComment={onEditComment}
                 />
               </div>
             ))}

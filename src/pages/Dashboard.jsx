@@ -1,5 +1,5 @@
 import { Container, Typography, Paper, Box, Grid, Card, CardContent } from '@mui/material'
-import { Person, Dashboard as DashboardIcon, Settings, Timeline } from '@mui/icons-material'
+import { Person, Dashboard as DashboardIcon, Settings, Timeline, Feed } from '@mui/icons-material'
 import { useAuth } from '../contexts/AuthContext'
 
 function Dashboard() {
@@ -14,9 +14,9 @@ function Dashboard() {
       color: 'bg-blue-50',
     },
     {
-      title: 'Analytics',
-      description: 'View your activity analytics',
-      icon: <Timeline className="text-green-600" />,
+      title: 'Feed',
+      description: 'View recent posts',
+      icon: <Feed className="text-green-600" />,
       color: 'bg-green-50',
     },
     {

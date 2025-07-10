@@ -54,7 +54,7 @@ function Navbar() {
 
   return (
     <AppBar position="fixed" className="bg-white shadow-lg">
-      <Toolbar className="gap-x-2 mx-96">
+      <Toolbar className="gap-x-2 mx-80">
         <Typography
           variant="h6"
           component={Link}
@@ -64,7 +64,7 @@ function Navbar() {
           reddish
         </Typography>
 
-        <Box className="flex-grow max-w-screen-lg items-center mx-32">
+        <Box className="flex-grow max-w-screen-lg items-center mx-16">
           <Paper
             component="form"
             className="visible flex p-1 items-center w-auto"
@@ -83,7 +83,18 @@ function Navbar() {
         <Box className="flex items-center space-x-4">
           {user ? (
             <>
+
+              <Button
+                variant="contained"
+                component={Link}
+                to="/Dashboard"
+                //className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Dashboard />
+                Dashboard
+              </Button>
               <IconButton
+
                 size="large"
                 onClick={handleMenu}
                 color="inherit"

@@ -74,7 +74,7 @@ export const usePosts = () => {
         'temp_id': tempId   // Server sends this back on success as a field in newComment
       });
 
-      console.log(newComment)
+      //console.log(newComment)
 
       dispatch({ 
         type: 'COMMENT_SUCCESS', 
@@ -161,12 +161,52 @@ export const usePosts = () => {
     }
   }, []);
 
+  const handleCloseDeleteModal = useCallback(() => {
+    dispatch({type: 'CLOSE_DELETE_MODAL'})
+  })
+
+  const handleDeletePost = useCallback(async (post) => {
+    dispatch({ type: 'DELETE_POST_OPTIMISTIC', postId: post.temp_id })
+    try {
+      const res = await api.delete(`/social_media/post/${post.post_id}`)
+      if (res && Object.hasOwn(res.data, 'error')) {
+        throw res.data.error;
+      }
+      console.log(res);
+      dispatch({ type: 'DELETE_POST_SUCCESS', postId: post.temp_id })
+    } catch (error) {
+      console.log(`error thrown: ${error}`)
+      dispatch({ type: 'DELETE_POST_ERROR', postId: post.temp_id, error: error.message })
+    }
+  }, []);
+
+  const handleDeleteComment = useCallback(async (comment) => {
+    console.log(comment);
+    dispatch({ type: 'DELETE_COMMENT_OPTIMISTIC', postId: comment.postTempId, commentId: comment.temp_id})
+    try {
+      const res = await api.delete(`/social_media/comment/${comment.comment_id}`)
+      if (res && Object.hasOwn(res.data, 'error')) {
+        throw res.data.error;
+      }
+      console.log(res);
+      dispatch({ type: 'DELETE_COMMENT_SUCCESS', postId: comment.postTempId, commentId: comment.temp_id })
+    } catch (error) {
+      console.log(`error thrown: ${error}`)
+      dispatch({ type: 'DELETE_COMMENT_ERROR', postId: comment.postTempId, commentId: comment.temp_id, error: error.message })
+    }
+
+  }, []);
+
+  const handleEditPost = useCallback(async (user, post) => {
+
+  }, []);
+
+  const handleEditComment = useCallback(async (user, comment) => {
+
+  }, []);
+
   // Memoized posts array to prevent unnecessary re-renders
-  //console.log(Object.values(new Object(posts.data)))
   const data = new Object(posts.data);
-  //console.log(data)
-  //console.log(Object.keys(posts))
-  //console.log(Object.values(posts.data))
   const postsArray = useMemo(() => 
     Object.values(data).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
     [data]
@@ -186,6 +226,11 @@ export const usePosts = () => {
     handleCloseAddPost,
     handleFormChange,
     handleAddPost,
+    handleCloseDeleteModal,
+    handleDeletePost,
+    handleDeleteComment,
+    handleEditPost,
+    handleEditComment,
     dispatch
   };
 };

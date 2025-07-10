@@ -1,10 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Container,
+  Box,
   Typography,
   CircularProgress,
   Alert,
   Button,
+  FormControl,
+  InputLabel,
+  Select,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 
@@ -14,10 +20,13 @@ import api from '../utils/api';
 import PostComponent from './Post/PostComponent';
 import AddPostFab from './Post/AddPostFab';
 import AddPostModal from './Post/AddPostForm';
+import DeleteDialog from './Post/DeleteDialog';
 
 const PostsFeed = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortBy, setSortBy] = useState('topVotes');
+  const [deletedItem, setDeletedItem] = useState(null);
 
   const {
     posts,
@@ -32,7 +41,12 @@ const PostsFeed = () => {
     handleOpenAddPost,
     handleCloseAddPost,
     handleFormChange,
+    handleCloseDeleteModal,
     handleAddPost,
+    handleDeletePost,
+    handleDeleteComment,
+    handleEditPost,
+    handleEditComment,
     dispatch,
   } = usePosts();
 
@@ -50,6 +64,26 @@ const PostsFeed = () => {
 
     initializePosts();
   }, [dispatch]);
+
+  const onDelete = useCallback(async (itemType, it) => {
+    // Wraps handleDeletePost and handleDeleteComment
+    // Extracts the requested post / comment id to pass to delete modal.
+    // Passed to props
+    //console.log(it)
+
+    setDeletedItem(
+      {
+        itemType,
+        item: it
+      })
+
+    dispatch({type: 'OPEN_DELETE_MODAL'})
+    //await handleDeletePost()
+  }, []);
+
+  const handleChange = (event) => {
+    setSortBy(event.target.value);
+  };
 
   if (isLoading) {
     return (
@@ -78,8 +112,31 @@ const PostsFeed = () => {
     );
   }
 
+  const props = {
+    isOpen: true,
+    onClose: () => (console.log('onOpen called'))
+  }
   return (
     <Container maxWidth="md" className="py-8">
+      <Box className="max-w-48 flex place-content-center mx-8 gap-2">
+        <Typography variant="body2" >
+          Sorted by:
+        </Typography>
+        <FormControl
+          size="small"
+        >
+          <InputLabel>Sort by...</InputLabel>
+          <Select
+            value={sortBy}
+            label="Sort By"
+            onChange={handleChange}
+          >
+            <MenuItem value="topVotes">Top votes</MenuItem>
+            <MenuItem value="mostRecent">Most recent</MenuItem>
+            <MenuItem value="editorPicks">Editor's picks</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
       {postsArray.map((post) => (
         <PostComponent
           key={post.post_id}
@@ -91,6 +148,10 @@ const PostsFeed = () => {
           onStartComment={handleStartComment}
           onUpdateComment={handleUpdateComment}
           onCancelComment={handleCancelComment}
+          onDeletePost={onDelete}
+          onDeleteComment={onDelete}
+          onEditPost={handleEditPost}
+          onEditComment={handleEditComment}
         />
       ))}
 
@@ -106,6 +167,22 @@ const PostsFeed = () => {
         isSubmitting={posts.ui?.addPostModal?.form?.isSubmitting || false}
         errors={posts.ui?.addPostModal?.form?.errors || {}}
       />
+
+      <DeleteDialog
+        isOpen={posts.ui?.deleteModal?.isOpen || false}
+        onClose={handleCloseDeleteModal}
+        item={deletedItem}
+        onDeletePost={handleDeletePost}
+        onDeleteComment={handleDeleteComment}
+        /**
+        {...{
+          isOpen: posts.ui?.deleteModal.isOpen || false,
+          onClose: () => (dispatch({type: 'CLOSE_DELETE_MODAL'})),
+        }}
+         * 
+         */
+      />
+
       
       <AddPostFab onClick={handleOpenAddPost} />
     </Container>

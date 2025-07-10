@@ -63,56 +63,65 @@ const AddPostModal = ({ isOpen, onClose, onSubmit, formData, onFormChange, isSub
 
       <DialogContent className="p-6 space-y-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title Field */}
-          <TextField
-            fullWidth
-            label="Post Title"
-            value={formData.title}
-            onChange={(e) => handleFormChange('title', e.target.value)}
-            error={!!errors.title}
-            helperText={errors.title}
-            variant="outlined"
-            className="bg-white"
-            inputProps={{ maxLength: 200 }}
-          />
+          <div className="space-y-4">
+            <Typography variant="subtitle2" className="text-gray-700 font-medium pt-4">
+              Title
+            </Typography>
+            {/* Title Field */}
+            <TextField
+              fullWidth
+              label="Post Title"
+              value={formData.title}
+              onChange={(e) => handleFormChange('title', e.target.value)}
+              error={!!errors.title}
+              helperText={errors.title}
+              variant="outlined"
+              className="bg-white"
+              inputProps={{ maxLength: 200 }}
+            />
+
+          </div>
 
           {/* Content Field with Rich Text Toolbar */}
-          <Box className="space-y-2">
+          <Box className="space-y-4">
             <div className="flex items-center justify-between">
               <Typography variant="subtitle2" className="text-gray-700 font-medium">
                 Content
               </Typography>
-              <div className="flex items-center gap-1">
-                <IconButton
-                  size="small"
-                  className="text-gray-500 hover:text-blue-600 hover:bg-blue-50"
-                  title="Bold"
-                >
-                  <FormatBold fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  className="text-gray-500 hover:text-blue-600 hover:bg-blue-50"
-                  title="Italic"
-                >
-                  <FormatItalic fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  className="text-gray-500 hover:text-blue-600 hover:bg-blue-50"
-                  title="Add Image"
-                >
-                  <Image fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  className="text-gray-500 hover:text-blue-600 hover:bg-blue-50"
-                  title="Add Link"
-                >
-                  <Link fontSize="small" />
-                </IconButton>
+              <div className="invisible">
+                <div className="flex items-center gap-1">
+                  <IconButton
+                    size="small"
+                    className="text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                    title="Bold"
+                  >
+                    <FormatBold fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    className="text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                    title="Italic"
+                  >
+                    <FormatItalic fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    className="text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                    title="Add Image"
+                  >
+                    <Image fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    className="text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                    title="Add Link"
+                  >
+                    <Link fontSize="small" />
+                  </IconButton>
+                </div>
               </div>
-            </div>
+
+              </div>
 
             <TextField
               fullWidth
@@ -123,7 +132,7 @@ const AddPostModal = ({ isOpen, onClose, onSubmit, formData, onFormChange, isSub
               error={!!errors.content}
               helperText={errors.content}
               variant="outlined"
-              placeholder="Write your post content here... You can use HTML markup for formatting."
+              placeholder="Write your post content here..."
               className="bg-white"
             />
 
@@ -134,15 +143,17 @@ const AddPostModal = ({ isOpen, onClose, onSubmit, formData, onFormChange, isSub
           </Box>
 
           {/* Image Upload Area (Placeholder) */}
-          <Box className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors">
-            <Image className="mx-auto text-gray-400 mb-2" fontSize="large" />
-            <Typography variant="body2" className="text-gray-500">
-              Drag and drop images here, or click to select
-            </Typography>
-            <Typography variant="caption" className="text-gray-400">
-              Supports JPG, PNG, GIF up to 10MB
-            </Typography>
-          </Box>
+          {false && <>
+            <Box className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors">
+              <Image className="mx-auto text-gray-400 mb-2" fontSize="large" />
+              <Typography variant="body2" className="text-gray-500">
+                Drag and drop images here, or click to select
+              </Typography>
+              <Typography variant="caption" className="text-gray-400">
+                Supports JPG, PNG, GIF up to 10MB
+              </Typography>
+            </Box>
+          </>}
         </form>
       </DialogContent>
 

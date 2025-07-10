@@ -14,7 +14,6 @@ import {
   Close
 } from '@mui/icons-material';
 
-import ProtectedRoute from '../ProtectedRoute';
 import { useAuth } from '../../contexts/AuthContext'
 /**
  * CommentForm - Component for adding new comments to posts
@@ -74,7 +73,7 @@ const CommentForm = ({
   }, [handleSubmit]);
 
   return (
-    <div className="pt-6 border-t border-gray-200">
+    <div className="border-t border-gray-200">
       {/* Comment Error Display */}
       {error && (
         <Alert severity="error" className="mb-4">
@@ -100,9 +99,7 @@ const CommentForm = ({
           {/* Comment Input Section */}
           <div className="flex gap-4">
             {/* Current User Avatar */}
-            <Avatar className="bg-gradient-to-r from-purple-500 to-pink-600 w-10 h-10 text-white font-bold shadow-sm">
-              CU
-            </Avatar>
+            <Avatar />
 
             {/* Comment Text Input */}
             <TextField

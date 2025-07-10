@@ -37,7 +37,8 @@ const VotingSection = ({
     if (variant === 'comment') {
       return "flex items-center gap-3 pt-2";
     }
-    return "flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200";
+    //return "flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200";
+    return "flex items-center gap-4 mb-6 p-4";
   };
 
   const getTypographyVariant = () => {

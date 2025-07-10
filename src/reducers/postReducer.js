@@ -43,6 +43,9 @@ const postsReducer = (state, action) => {
               isSubmitting: false,
               errors: {}
             }
+          },
+          deleteModal: {
+            isOpen: false,
           }
         }
       }), {});
@@ -241,6 +244,7 @@ const postsReducer = (state, action) => {
       return {
         ...state,
         data: {
+          ...state.data,
           [action.postId]: {
             ...state.data[action.postId],
             comments: {
@@ -261,6 +265,7 @@ const postsReducer = (state, action) => {
       return {
         ...state,
         data: {
+          ...state.data,
           [action.postId]: {
             ...state.data[action.postId],
             comments: {
@@ -309,6 +314,156 @@ const postsReducer = (state, action) => {
           }
         }
       }
+
+    case 'OPEN_DELETE_MODAL':
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          deleteModal: {
+            isOpen: true,
+          }
+        }
+      };
+
+    case 'CLOSE_DELETE_MODAL':
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          deleteModal: {
+            isOpen: false,
+          }
+        }
+      };
+
+
+    case 'DELETE_POST_OPTIMISTIC':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          [action.postId]: {
+            ...state.data[action.postId],
+            ui: {
+              ...state.data[action.postId].ui,
+              isPending: true,
+            }
+          }
+        },
+        ui: {
+          ...state.ui,
+          deleteModal: {
+            isOpen: false,
+          }
+        }
+      };
+
+    case 'DELETE_POST_SUCCESS':
+      const { data: oldData, ...oldUi } = state;
+      const { [action.postId]: deletedPost, ...newData } = oldData
+      const s3 = {
+        data: newData,
+        ...oldUi
+      }
+      return {
+        ...s3
+      };
+
+    case 'DELETE_POST_ERROR':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          [action.postId]: {
+            ...state.data[action.postId],
+            ui: {
+              ...state.data[action.postId].ui,
+              isPending: false,
+              errors: {
+                ...state.data[action.postId].ui.errors,
+                deleteError: action.error
+              }
+            }
+          }
+        }
+      };
+
+    case 'DELETE_COMMENT_OPTIMISTIC':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          [action.postId]: {
+            ...state.data[action.postId],
+            comments: {
+              ...state.data[action.postId].comments,
+              [action.commentId]: {
+                ...state.data[action.postId].comments[action.commentId],
+                ui: {
+                  ...state.data[action.postId].comments[action.commentId].ui,
+                  isPending: true
+                }
+              }
+            }
+          }
+        },
+        ui: {
+          ...state.ui,
+          deleteModal: {
+            isOpen: false,
+          }
+        }
+      };
+
+    case 'DELETE_COMMENT_SUCCESS':
+      const { data: oldData2, ...oldUi2 } = state;
+      const { [action.postId]: parentPost, ...otherPosts } = oldData2
+      const { comments: oldComments, ...otherPostData } = parentPost
+      const { [action.commentId]: deletedComment, ...otherComments } = oldComments
+      const s4 = {
+        data: {
+          ...otherPosts,
+          [action.postId]: {
+            ...otherPostData,
+            comments: {
+              ...otherComments
+            }
+          }
+        },
+        ...oldUi2
+      }
+      return {
+        ...s4
+      };
+
+    case 'DELETE_COMMENT_ERROR':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          [action.postId]: {
+            ...state.data[action.postId],
+            comments: {
+              ...state.data[action.postId].comments,
+              [action.commentId]: {
+                ...state.data[action.postId].comments[action.commentId],
+                ui: {
+                  ...state.data[action.postId].comments[action.commentId].ui,
+                  isPending: false,
+                }
+              }
+            },
+            ui: {
+              ...state.data[action.postId].ui,
+              errors: {
+                ...state.data[action.postId].ui.errors,
+                deleteError: action.error
+              }
+            }
+          }
+        },
+      };
         
     case 'OPEN_ADD_POST_MODAL':
       return {

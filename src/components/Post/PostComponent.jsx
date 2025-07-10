@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { 
+  Button,
   Card,
   CardHeader,
   CardContent,
@@ -36,7 +37,11 @@ function PostComponent(props) {
     onToggleComments,
     onStartComment,
     onUpdateComment,
-    onCancelComment
+    onCancelComment,
+    onDeletePost,
+    onDeleteComment,
+    onEditPost,
+    onEditComment
   } = props;
 
   const {
@@ -70,6 +75,10 @@ function PostComponent(props) {
     setAnchorEl(e.currentTarget);
   };
 
+  const handleDeletePost = useCallback(async () => {
+    await onDeletePost('post', post);
+  }, [post, onDeletePost]);
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -88,8 +97,6 @@ function PostComponent(props) {
     if (newVote === 'up') newUpvotes++;
     if (newVote === 'down') newDownvotes++;
 
-    //console.log({ post_id, temp_id, voteType, newVote })
-
     await onVote(post_id, temp_id, voteType, {
       up: newUpvotes,
       down: newDownvotes
@@ -102,7 +109,7 @@ function PostComponent(props) {
   );
 
   return (
-    <Card className="p-4">
+    <Card className="my-8 p-4">
       <CardHeader 
         avatar={
           <Avatar 
@@ -119,7 +126,7 @@ function PostComponent(props) {
             By {author.username} • posted {relTime}
           </Typography>
         }
-        action={
+        action={user &&
           <>
             <IconButton 
               onClick={handleMenu}
@@ -142,11 +149,15 @@ function PostComponent(props) {
               }}
             >
               <MenuItem>Report</MenuItem>
-              <MenuItem>Delete Post</MenuItem>
-              <MenuItem>Test</MenuItem>
-              <MenuItem>Test</MenuItem>
+              {(user.account_type === "SUPERUSER" 
+                || author.user_id === user.id) && 
+                <>
+                  <MenuItem>Edit</MenuItem>
+                  <MenuItem
+                    onClick={handleDeletePost}
+                  >Delete</MenuItem>
+                </>}
             </Menu>
-
           </>
         }
       >
@@ -179,6 +190,8 @@ function PostComponent(props) {
           onStartComment={onStartComment}     // Called in CommentForm
           onUpdateComment={onUpdateComment}   // Called in CommentForm
           onCancelComment={onCancelComment}   // Called in CommentForm
+          onDeleteComment={onDeleteComment}
+          onEditComment={onEditComment}
         />
       </CardContent>
 
