@@ -47,13 +47,36 @@ const PostsFeed = () => {
     handleDeleteComment,
     handleEditPost,
     handleEditComment,
+    //handleChangeSort,
     dispatch,
   } = usePosts();
 
   useEffect(() => {
     const initializePosts = async () => {
+      let endPt = '/social_media'
+      let query = '';
+      switch (sortBy) {
+        case 'topVotes':
+          query = '?sort_by=total_votes';
+          break;
+        case 'upVotes':
+          query = '?sort_by=upvotes_cnt';
+          break;
+        case 'downVotes':
+          query = '?sort_by=dnvotes_cnt';
+          break;
+        case 'latest':
+          query = '?sort_by=created_at';
+          break;
+        case 'oldest':
+          query = '?sort_by=created_at&order=asc';
+          break;
+        default:
+          break;
+      }
+      endPt += query;
       try {
-        const res = await api.get('/social_media');
+        const res = await api.get(endPt);
         dispatch({ type: 'INITIALIZE_POSTS', posts: res.data.items });
         setIsLoading(false);
       } catch (err) {
@@ -63,7 +86,7 @@ const PostsFeed = () => {
     };
 
     initializePosts();
-  }, [dispatch]);
+  }, [dispatch, sortBy]);
 
   const onDelete = useCallback(async (itemType, it) => {
     // Wraps handleDeletePost and handleDeleteComment
@@ -127,8 +150,10 @@ const PostsFeed = () => {
             onChange={handleChange}
           >
             <MenuItem value="topVotes">Top votes</MenuItem>
-            <MenuItem value="mostRecent">Most recent</MenuItem>
-            <MenuItem value="editorPicks">Editor's picks</MenuItem>
+            <MenuItem value="upVotes">Most up-votes</MenuItem>
+            <MenuItem value="downVotes">Most down-votes</MenuItem>
+            <MenuItem value="latest">Latest</MenuItem>
+            <MenuItem value="oldest">Oldest</MenuItem>
           </Select>
         </FormControl>
       </Box>

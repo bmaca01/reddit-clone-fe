@@ -1,10 +1,11 @@
-import { useReducer, useCallback, useMemo } from 'react'
+import { useState, useReducer, useCallback, useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import postsReducer from '../reducers/postReducer'
 import api from '../utils/api';
 
 export const usePosts = () => {
   const [posts, dispatch] = useReducer(postsReducer, {});
+  //const [sortBy, setSortBy] = useState('created_at');
 
   // Memoized callbacks to prevent unnecessary re-renders
   const handleVote = useCallback(async (postId, tempId, voteType, votes, userVote) => {
@@ -205,12 +206,28 @@ export const usePosts = () => {
 
   }, []);
 
+  /*
+  const handleChangeSort = (e) => {
+    switch (e.target.value) {
+      case 'topVotes':
+        setSortBy('total_votes');
+        break;
+      case 'mostRecent':
+        setSortBy('created_at');
+        break;
+      case 'editorPicks':
+        //query = '?sort_by=total_votes';
+        break;
+      default:
+        break;
+    }
+  };
+  */
   // Memoized posts array to prevent unnecessary re-renders
   const data = new Object(posts.data);
-  const postsArray = useMemo(() => 
-    Object.values(data).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
-    [data]
-  ); 
+  const postsArray = useMemo(() => {
+    return Object.values(data);
+  }, [data]); 
 
   return {
     posts,
@@ -231,6 +248,7 @@ export const usePosts = () => {
     handleDeleteComment,
     handleEditPost,
     handleEditComment,
+    //handleChangeSort,
     dispatch
   };
 };

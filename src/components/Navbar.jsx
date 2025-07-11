@@ -132,7 +132,7 @@ function MobileMenu(props) {
   );
 }
 
-function LargeScreenMenu(props) {
+function AuthActions(props) {
   const { handleLogout } = props;
   const { user } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -235,11 +235,6 @@ function Navbar() {
   if (isPortrait) console.log('portrait');
   if (isMobileLandscape) console.log('mobile landscape');
 
-  const toggleDrawer = (o) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
-    setMenuOpen(o);
-  }
-
   const handleSearch = (e) => {
     e.preventDefault();
     // TODO
@@ -251,7 +246,6 @@ function Navbar() {
   const handleChange = (e) => {
     setSearchData(e.target.value);
     console.log(e.target.value);
-
   };
 
   const handleLogout = () => {
@@ -262,7 +256,7 @@ function Navbar() {
 
   return (
     <AppBar position="fixed" className="bg-white shadow-lg">
-      <Toolbar className="flex items-center justify-between gap-x-2 border-b border-b-border">
+      <Toolbar className="flex items-center justify-between gap-x-2 mx-4 xl:mx-96 border-b border-b-border">
         {/*Logo*/}
         <Typography
           variant="h6"
@@ -291,20 +285,9 @@ function Navbar() {
           </Paper>
         </Box>
         */}
-        {/* Small screen / Mobile menu */}
-        {/*(isTabletOrMobile || isPortrait || !isDesktopOrLaptop) &&*/}
-        {false &&
-          <MobileMenu 
-            menuOpen={menuOpen}
-            toggleDrawer={toggleDrawer}
-            handleLogout={handleLogout}
-          />
-        }
-        {true && 
-          <LargeScreenMenu
-            handleLogout={handleLogout}
-          />
-        }
+        <AuthActions
+          handleLogout={handleLogout}
+        />
       </Toolbar>
     </AppBar>
   );

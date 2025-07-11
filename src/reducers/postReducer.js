@@ -1,7 +1,7 @@
 const postsReducer = (state, action) => {
   switch (action.type) {
     case 'INITIALIZE_POSTS':
-      return action.posts.reduce((acc, post) => ({
+      const rtn = action.posts.reduce((acc, post) => ({
         ...acc,
         data: {
           ...acc.data,
@@ -46,6 +46,9 @@ const postsReducer = (state, action) => {
           }
         }
       }), {});
+      console.log(rtn);
+      return rtn;
+
 
     case 'START_VOTE':
       return {
