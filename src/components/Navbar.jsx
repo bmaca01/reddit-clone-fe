@@ -229,12 +229,6 @@ function Navbar() {
   const isPortrait = useMediaQuery({ query: '(orientation: portrait)' })
   const isMobileLandscape = isTabletOrMobile && !isPortrait;
 
-  if (isDesktopOrLaptop) console.log('desktop / laptop');
-  if (isBigScreen) console.log('big screen');
-  if (isTabletOrMobile) console.log('tablet / mobile');
-  if (isPortrait) console.log('portrait');
-  if (isMobileLandscape) console.log('mobile landscape');
-
   const handleSearch = (e) => {
     e.preventDefault();
     // TODO
